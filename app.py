@@ -6,9 +6,27 @@ import dash_html_components as html
 
 
 import pandas as pd
+import numpy as np
 
+stocks_cny = pd.read_csv('csv/stocks-cny.csv', dtype={'Symbol':str})
+trades_cny = pd.read_csv(
+        'csv/trades-cny.csv',
+        dtype={'Symbol':str, 'Qty':np.int64}
+        )
+dividends_cny = pd.read_csv(
+        'csv/dividends-cny.csv',
+        dtype={'Symbol':str,'Qty':np.int64}
+        )
 
-df_stocks_cny = pd.read_csv('csv/stocks-cny.csv', dtype={'Symbol':str})
+stocks_hkd = pd.read_csv('csv/stocks-hkd.csv', dtype={'Symbol':str})
+trades_hkd = pd.read_csv(
+        'csv/trades-hkd.csv',
+        dtype={'Symbol':str, 'Qty':np.int64}
+        )
+dividends_hkd = pd.read_csv(
+        'csv/dividends-hkd.csv',
+        dtype={'Symbol':str, 'Qty':np.int64}
+        )
 
 
 def generate_table(df):
