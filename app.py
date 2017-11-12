@@ -3,6 +3,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+from stocks import get_trade_indicators
 
 
 import pandas as pd
@@ -43,10 +44,10 @@ def generate_table(df):
 
 app = dash.Dash()
 
-
+df = get_trade_indicators(stocks_cny, trades_cny, dividends_cny)
 app.layout = html.Div(children=[
     html.H1('Traded Stocks'),
-    generate_table(df_stocks_cny)
+    generate_table(df.head())
 ])
 
 
