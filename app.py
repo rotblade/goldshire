@@ -1,10 +1,10 @@
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
-from stocks import csv2df, get_summary
+from stocks import csv2df, get_detail
 
 
 stocks_cny = csv2df('stocks-cny.csv', 'trades-cny.csv', 'dividends-cny.csv')
-df_stocks = get_summary(stocks_cny[0], stocks_cny[1], stocks_cny[2])
+df_stocks = get_detail(stocks_cny[0], stocks_cny[1], stocks_cny[2])
 data_stocks = df_stocks.head(10).to_html(border=0, classes="table")
 
 

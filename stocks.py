@@ -1,8 +1,17 @@
+import datetime
 import pandas as pd
 import numpy as np
+import tushare as ts
 
 
 def csv2df(csv_stock, csv_trade, csv_divid):
+    '''
+    csv_stock: CSV file that includes traded stocks info.
+    csv_trade: CSV file that includes all trades info.
+    csv_divid: CSV file that includes dividend info.
+
+    Return: A tuple with converted Pandas dataframe for the 3 CSV files.
+    '''
     stocks = pd.read_csv('csv/' + csv_stock, dtype={'Symbol':str})
     trades = pd.read_csv(
         'csv/' + csv_trade,
@@ -12,11 +21,29 @@ def csv2df(csv_stock, csv_trade, csv_divid):
         'csv/' + csv_divid,
         dtype={'Symbol':str,'Qty':np.int64}
         )
-    
+
     return (stocks, trades, divids)
 
 
-def get_summary(stocks, trades, divids):
+def get_ts_quote(symbols, isA=True):
+    cons = ts.get_apis()
+    last = datetime.datetime.today() - datetime.timedelta(days=7)
+
+    quotes_dict = {}
+    for item in symbols:
+        if isA:
+            df = ts.bar(item, conn=cons, freq='D',
+                start_date=last, end_date='')
+        else:
+            df = ts.bar(item, conn=cons, asset='X',
+                start_date=last, end_date='')
+        quotes_dict[item] = df['close'].iloc[0]
+
+    quotes = pd.Series(quotes_dict)
+    return quotes
+
+
+def get_detail(stocks, trades, divids):
     '''
     stocks: A pandas dataframe that lists all traded stocks.
     trades: A pandas dataframe that lists all trades.
@@ -45,6 +72,7 @@ def get_summary(stocks, trades, divids):
     qty_sum = group_trade['Qty'].sum().unstack(fill_value=0)
     stocks_detail = stocks.join(qty_sum)
     stocks_detail.columns = ['Name', 'B_Qty', 'S_Qty']
+    stocks_detail['Qty'] = stocks_detail['B_Qty'] - stocks_detail['S_Qty']
 
     # Calculate average bought/sold price.
     basis = group_trade['Basis'].sum().unstack(fill_value=0)
@@ -64,4 +92,18 @@ def get_summary(stocks, trades, divids):
     stocks_detail['R_PnL'].fillna(0.0, inplace=True)
     stocks_detail['Dividend'].fillna(0.0, inplace=True)
 
-    return stocks_detail.reset_index().round(2)
+    # Get latest price for the holding stocks.
+    hold = stocks_detail.loc[lambda df: df.Qty > 0]
+    ts_last = get_ts_quote(hold.index)
+    stocks_detail['Last'] = ts_last
+
+    # Calculate unrealized profit/loss for holding stocks.
+    stocks_detail['UR_PnL'] = stocks_detail['Qty'] * \
+                            (stocks_detail['Last'] - stocks_detail['B_Cost'])
+
+    # Calculate total earning for each stock.
+    stocks_detail['Earning'] = stocks_detail['Dividend'] + \
+                            stocks_summary['R_PnL'] + stocks_summary['UR_PnL']
+
+    #return stocks_detail.reset_index().round(2)
+    return stocks_detail.round(2)
