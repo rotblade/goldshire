@@ -2,7 +2,21 @@ import pandas as pd
 import numpy as np
 
 
-def get_trade_indicators(stocks, trades, dividends):
+def csv2df(csv_stock, csv_trade, csv_divid):
+    stocks = pd.read_csv('csv/' + csv_stock, dtype={'Symbol':str})
+    trades = pd.read_csv(
+        'csv/' + csv_trade,
+        dtype={'Symbol':str, 'Qty':np.int64}
+        )
+    divids = pd.read_csv(
+        'csv/' + csv_divid,
+        dtype={'Symbol':str,'Qty':np.int64}
+        )
+    
+    return (stocks, trades, divids)
+
+
+def get_summary(stocks, trades, divids):
     '''
     stocks: A pandas dataframe that lists all traded stocks.
     trades: A pandas dataframe that lists all trades.
@@ -15,7 +29,7 @@ def get_trade_indicators(stocks, trades, dividends):
     # Set stock's symbol as Dataframe index.
     stocks.set_index('Symbol', inplace=True)
     trades.set_index('Symbol', inplace=True)
-    dividends.set_index('Symbol', inplace=True)
+    divids.set_index('Symbol', inplace=True)
 
     # Calculate actual amount for each trade.
     proceed = trades['Price'] * trades['Qty'].abs()
@@ -23,8 +37,9 @@ def get_trade_indicators(stocks, trades, dividends):
     trades['Basis'] = np.where( trades['Transaction']=='BUY',
             proceed+fee, proceed-fee)
 
-    # Generate Pandas groupby object for all traded stocks.
+    # Generate Pandas groupby object for trades and dividends.
     group_trade = trades.groupby([trades.index, trades['Transaction']])
+    group_divid = divids.groupby(divids.index)
 
     # Claculate total bought/sold qty for each stock.
     qty_sum = group_trade['Qty'].sum().unstack(fill_value=0)
@@ -40,4 +55,13 @@ def get_trade_indicators(stocks, trades, dividends):
     sold_cost = stocks_detail['B_Cost'] * stocks_detail['S_Qty'].abs()
     stocks_detail['R_PnL'] = basis['SELL']- sold_cost
 
-    return stocks_detail.reset_index()
+    # Calculate dividend for each stock.
+    divid_fee = divids['Commission'] + divids['Tax']
+    divids['Dividend'] = divids['PerShare']*divids['Qty'] - divid_fee
+    stocks_detail['Dividend'] = group_divid['Dividend'].sum()
+
+    # Fill NaN with zero value for realized profit/loss and dividend.
+    stocks_detail['R_PnL'].fillna(0.0, inplace=True)
+    stocks_detail['Dividend'].fillna(0.0, inplace=True)
+
+    return stocks_detail.reset_index().round(2)
