@@ -13,6 +13,7 @@ def create_app():
 
     return app
 
+
 app = create_app()
 
 
@@ -28,6 +29,6 @@ def traded_stocks():
                            '持仓数量',
                            '平均买入价格',
                            '已实现盈亏',
-                           '累计分红',]
+                           '累计分红', ]
     data = stk_summary.to_html(border=0, classes="table", index_names=False)
     return render_template('stocks.html', data=data)

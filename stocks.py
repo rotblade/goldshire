@@ -12,15 +12,15 @@ def csv2df(csv_stock, csv_trade, csv_divid):
 
     Return: A tuple with converted Pandas dataframe for the 3 CSV files.
     '''
-    stocks = pd.read_csv('csv/' + csv_stock, dtype={'Symbol':str})
+    stocks = pd.read_csv('csv/' + csv_stock, dtype={'Symbol': str})
     trades = pd.read_csv(
         'csv/' + csv_trade,
-        dtype={'Symbol':str, 'Qty':np.int64}
-        )
+        dtype={'Symbol': str, 'Qty': np.int64}
+    )
     divids = pd.read_csv(
         'csv/' + csv_divid,
-        dtype={'Symbol':str,'Qty':np.int64}
-        )
+        dtype={'Symbol': str, 'Qty': np.int64}
+    )
 
     return (stocks, trades, divids)
 
@@ -33,10 +33,10 @@ def get_ts_quote(symbols, isA=True):
     for item in symbols:
         if isA:
             df = ts.bar(item, conn=cons, freq='D',
-                start_date=last, end_date='')
+                        start_date=last, end_date='')
         else:
             df = ts.bar(item, conn=cons, asset='X',
-                start_date=last, end_date='')
+                        start_date=last, end_date='')
         quotes_dict[item] = df['close'].iloc[0]
 
     quotes = pd.Series(quotes_dict)
@@ -61,8 +61,8 @@ def get_detail(stocks, trades, divids):
     # Calculate actual amount for each trade.
     proceed = trades['Price'] * trades['Qty'].abs()
     fee = trades['Commission'] + trades['Tax']
-    trades['Basis'] = np.where( trades['Transaction']=='BUY',
-            proceed+fee, proceed-fee)
+    trades['Basis'] = np.where(trades['Transaction'] == 'BUY',
+                               proceed + fee, proceed - fee)
 
     # Generate Pandas groupby object for trades and dividends.
     group_trade = trades.groupby([trades.index, trades['Transaction']])
@@ -76,16 +76,16 @@ def get_detail(stocks, trades, divids):
 
     # Calculate average bought/sold price.
     basis = group_trade['Basis'].sum().unstack(fill_value=0)
-    stocks_detail['B_Cost'] = basis['BUY']/stocks_detail['B_Qty']
-    stocks_detail['S_Cost'] = basis['SELL']/stocks_detail['S_Qty'].abs()
+    stocks_detail['B_Cost'] = basis['BUY'] / stocks_detail['B_Qty']
+    stocks_detail['S_Cost'] = basis['SELL'] / stocks_detail['S_Qty'].abs()
 
     # Calculate realized profit/loss
     sold_cost = stocks_detail['B_Cost'] * stocks_detail['S_Qty'].abs()
-    stocks_detail['R_PnL'] = basis['SELL']- sold_cost
+    stocks_detail['R_PnL'] = basis['SELL'] - sold_cost
 
     # Calculate dividend for each stock.
     divid_fee = divids['Commission'] + divids['Tax']
-    divids['Dividend'] = divids['PerShare']*divids['Qty'] - divid_fee
+    divids['Dividend'] = divids['PerShare'] * divids['Qty'] - divid_fee
     stocks_detail['Dividend'] = group_divid['Dividend'].sum()
 
     # Fill NaN with zero value for realized profit/loss and dividend.
@@ -105,7 +105,7 @@ def get_detail(stocks, trades, divids):
 #    stocks_detail['Earning'] = stocks_detail['Dividend'] + \
 #                            stocks_summary['R_PnL'] + stocks_summary['UR_PnL']
 
-    #return stocks_detail.reset_index().round(2)
+    # return stocks_detail.reset_index().round(2)
     return stocks_detail.round(2)
 
 
