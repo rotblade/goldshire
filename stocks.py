@@ -72,7 +72,7 @@ def get_detail(stocks, trades, divids):
     qty_sum = group_trade['Qty'].sum().unstack(fill_value=0)
     stocks_detail = stocks.join(qty_sum)
     stocks_detail.columns = ['Name', 'B_Qty', 'S_Qty']
-    stocks_detail['Qty'] = stocks_detail['B_Qty'] - stocks_detail['S_Qty']
+    stocks_detail['Qty'] = stocks_detail['B_Qty'] + stocks_detail['S_Qty']
 
     # Calculate average bought/sold price.
     basis = group_trade['Basis'].sum().unstack(fill_value=0)
@@ -92,18 +92,31 @@ def get_detail(stocks, trades, divids):
     stocks_detail['R_PnL'].fillna(0.0, inplace=True)
     stocks_detail['Dividend'].fillna(0.0, inplace=True)
 
-    # Get latest price for the holding stocks.
-    hold = stocks_detail.loc[lambda df: df.Qty > 0]
-    ts_last = get_ts_quote(hold.index)
-    stocks_detail['Last'] = ts_last
-
-    # Calculate unrealized profit/loss for holding stocks.
-    stocks_detail['UR_PnL'] = stocks_detail['Qty'] * \
-                            (stocks_detail['Last'] - stocks_detail['B_Cost'])
-
-    # Calculate total earning for each stock.
-    stocks_detail['Earning'] = stocks_detail['Dividend'] + \
-                            stocks_summary['R_PnL'] + stocks_summary['UR_PnL']
+#    # Get latest price for the holding stocks.
+#    hold = stocks_detail.loc[lambda df: df.Qty > 0]
+#    ts_last = get_ts_quote(hold.index)
+#    stocks_detail['Last'] = ts_last
+#
+#    # Calculate unrealized profit/loss for holding stocks.
+#    stocks_detail['UR_PnL'] = stocks_detail['Qty'] * \
+#                            (stocks_detail['Last'] - stocks_detail['B_Cost'])
+#
+#    # Calculate total earning for each stock.
+#    stocks_detail['Earning'] = stocks_detail['Dividend'] + \
+#                            stocks_summary['R_PnL'] + stocks_summary['UR_PnL']
 
     #return stocks_detail.reset_index().round(2)
     return stocks_detail.round(2)
+
+
+def get_summary(detail, showAll=False):
+    '''
+    Get stocks summary from detail information.
+    '''
+    # Show only holding stocks by default
+    summary = detail.loc[lambda df: df.Qty > 0] if not showAll else detail
+
+    # Extract useful summary fields.
+    df = summary[['Name', 'Qty', 'B_Cost', 'R_PnL', 'Dividend']]
+
+    return df
