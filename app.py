@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template
 from flask_bootstrap import Bootstrap
 from stocks import csv2df, get_detail, get_summary
 
@@ -22,13 +22,21 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/stocks')
-def traded_stocks():
+@app.route('/stocks/')
+def get_stocks():
     stk_summary = get_summary(stk_detail)
     stk_summary.columns = ['名称',
                            '持仓数量',
                            '平均买入价格',
                            '已实现盈亏',
                            '累计分红', ]
-    data = stk_summary.to_html(border=0, classes="table", index_names=False)
+    #data = stk_summary.to_html(border=0, classes="table", index_names=False)
+    data = stk_summary
     return render_template('stocks.html', data=data)
+    #return jsonify(data)
+
+
+@app.route('/stocks/<symbol>/')
+def get_stock(symbol):
+    stock = stk_detail.loc[symbol]
+    return jsonify(stock.to_dict())

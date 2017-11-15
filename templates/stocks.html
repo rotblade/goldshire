@@ -7,13 +7,36 @@
 {% endblock %}
 {% block content %}
 <div class="container">
-    <div class="page-header">
-        <h3>Traded stocks</h3>
+  <div class="page-header">
+      <h3>Traded stocks</h3>
+  </div>
+  <div class="row">
+    <div class="col-md-8">
+      <table id="h-stocks" class="table">
+        <thead>
+          <tr>
+            <th></th>
+            {% for col in data.columns.tolist() %}
+              <th>{{ col }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for index, row in data.iterrows() %}
+            <tr>
+              <th><a href="{{ url_for('get_stock', symbol=index) }}">{{ index }}</a></th>
+              {% for item in row %}
+                <td>{{ item }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <div class="row">
-        <div class="col-md-10">
-            {{ data | safe }}
-        </div>
+    <div class="col-md-4">
+      <div id="app">
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
