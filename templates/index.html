@@ -1,49 +1,73 @@
 {% extends "bootstrap/base.html" %}
 {% block title %}Investment Performance{% endblock %}
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='app.css')}}">
+{% endblock %}
 {% block scripts%}
- {{super()}}
- <script src="https://cdn.jsdelivr.net/npm/vue@2.5.3/dist/vue.js"></script>
- <script type=text/javascript src="{{
-   url_for('static', filename='js/app.js') }}"></script>
+{{super()}}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.3/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/x-template" id="grid-stocks-template">
+  <table class="table">
+    <thead>
+      <tr>
+        <th></th>
+        <th v-for="col in columns"
+            @click="sortBy(col)"
+            :class="{ active: sortKey== col }">
+          <span v-text="col"></span>
+          <span class="arrow" :class="sortOrders[col]>0 ? 'asc' : 'dsc'"></span>
+        </th>
+        </tr>
+      </thead>
+    <tbody>
+      <tr v-for="row in sortedData">
+        <th>?</th>
+        <td v-for="col in columns">
+          <span v-text="row[col]"></span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</script>
+<script type=text/javascript>
+  var $API_ROOT = {{url_for('/')}}
+</script>
+<script type=text/javascript src="{{
+  url_for('static', filename='js/app.js') }}"></script>
 {% endblock %}
 {% block navbar %}
-<div class="navbar navbar-fixed-top">
-  <!-- ... -->
-</div>
+  <div class="container">
+    <div class="navbar-header">
+      <span class="navbar-brand">Goldshire</span>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"><a @click="getStocks($API_ROOT+'stocks')" href="#">Overal Performance</a></li>
+        <li><a href="{{ url_for('get_stocks') }}">Stocks List</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="page-header">
-    <a href="{{ url_for('get_stocks') }}">Get stocks list</a>
+<div id="app">
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-md-8">
+    </div>
+    <div class="col-md-4">
+    </div>
   </div>
   <div class="row">
-      <div class="col-md-8">
-        <div id="app">
-          <table class="table">
-            <thead>
-              <tr>
-                <th></th>
-                <th v-for="col in columns"
-                    @click="sortBy(col)"
-                    :class="{ active: sortKey== col }">
-                  <span v-text="col"></span>
-                  <span class="arrow" :class="sortOrders[col]>0 ? 'asc' :
-                  'dsc'"></span>
-                </th>
-                </tr>
-              </thead>
-            <tbody>
-              <tr v-for="row in data">
-                <th>?</th>
-                <td v-for="col in columns">
-                  <span v-text="row[key]"></span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <div class="col-md-8">
+      <grid-stocks :data="gridData" :columns="gridColumns">
+      </grid-stocks>
+    </div>
+    <div class="col-md-4">
+    </div>
   </div>
+</div>
 </div>
 {% endblock %}

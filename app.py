@@ -25,15 +25,16 @@ def index():
 @app.route('/stocks/')
 def get_stocks():
     stk_summary = get_summary(stk_detail)
-    stk_summary.columns = ['名称',
-                           '持仓数量',
-                           '平均买入价格',
-                           '已实现盈亏',
-                           '累计分红', ]
+    header = ['名称',
+              '持仓数量',
+              '平均买入价格',
+              '已实现盈亏',
+              '累计分红']
+    stk_summary.columns = header
     #data = stk_summary.to_html(border=0, classes="table", index_names=False)
-    data = stk_summary
-    return render_template('stocks.html', data=data)
-    #return jsonify(data)
+    data = stk_summary.to_dict(orint='records')
+    #return render_template('stocks.html', data=data)
+    return jsonify([header, data])
 
 
 @app.route('/stocks/<symbol>/')
