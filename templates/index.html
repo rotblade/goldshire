@@ -1,73 +1,108 @@
-{% extends "bootstrap/base.html" %}
-{% block title %}Investment Performance{% endblock %}
-{% block styles %}
-{{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='app.css')}}">
-{% endblock %}
-{% block scripts%}
-{{super()}}
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.3/dist/vue.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script type="text/x-template" id="grid-stocks-template">
-  <table class="table">
-    <thead>
-      <tr>
-        <th></th>
-        <th v-for="col in columns"
-            @click="sortBy(col)"
-            :class="{ active: sortKey== col }">
-          <span v-text="col"></span>
-          <span class="arrow" :class="sortOrders[col]>0 ? 'asc' : 'dsc'"></span>
-        </th>
-        </tr>
-      </thead>
-    <tbody>
-      <tr v-for="row in sortedData">
-        <th>?</th>
-        <td v-for="col in columns">
-          <span v-text="row[col]"></span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</script>
-<script type=text/javascript>
-  var $API_ROOT = {{url_for('/')}}
-</script>
-<script type=text/javascript src="{{
-  url_for('static', filename='js/app.js') }}"></script>
-{% endblock %}
-{% block navbar %}
-  <div class="container">
-    <div class="navbar-header">
-      <span class="navbar-brand">Goldshire</span>
-    </div>
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-        <li class="active"><a @click="getStocks($API_ROOT+'stocks')" href="#">Overal Performance</a></li>
-        <li><a href="{{ url_for('get_stocks') }}">Stocks List</a></li>
-      </ul>
-    </div><!--/.nav-collapse -->
-  </div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
 
-{% block content %}
-<div id="app">
-<div class="container" role="main">
-  <div class="row">
-    <div class="col-md-8">
-    </div>
-    <div class="col-md-4">
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-8">
-      <grid-stocks :data="gridData" :columns="gridColumns">
-      </grid-stocks>
-    </div>
-    <div class="col-md-4">
-    </div>
-  </div>
-</div>
-</div>
-{% endblock %}
+    <title>Portfolio Performance</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <!-- <link href="static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet"> -->
+
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+  </head>
+
+  <body>
+    <div id="app">
+    <!-- Fixed navbar -->
+    <!-- <nav class="navbar navbar-inverse navbar-fixed-top"> -->
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Portfolio Performance</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="{{ url_for('index') }}">Overall</a></li>
+            <li><a @click.prevent="getStocks({{ url_for('get_stocks') }})" href="#">Stocks List</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+      <!-- </nav> -->
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="row">
+        <div class="col-md-8">
+        </div>
+        <div class="col-md-4">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-8">
+          <grid-stocks :data="gridData" :columns="gridColumns">
+          </grid-stocks>
+        </div>
+        <div class="col-md-4">
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+    </div> <!-- End of Vue app -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Vue & Axios library
+    ================================================ -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.3/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!-- Custom JavaScript
+    ================================================ -->
+
+    <!-- Vue templates -->
+    <script type="text/x-template" id="grid-stocks-template">
+    <table class="table">
+      <thead>
+        <tr>
+          <th v-for="col in columns"
+              @click="sortBy(col)"
+              :class="{ active: sortKey == col }">
+            <span v-text="col"></span>
+            <span class="arrow" :class="sortOrders[col]>0 ? 'asc' : 'dsc'"></span>
+          </th>
+          </tr>
+        </thead>
+      <tbody>
+        <tr v-for="row in sortedData">
+          <td v-for="col in columns">
+            <span v-text="row[col]"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </script>
+
+    <!-- Vue components and instance -->
+    <script type=text/javascript src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>

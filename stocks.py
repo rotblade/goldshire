@@ -105,8 +105,8 @@ def get_detail(stocks, trades, divids):
 #    stocks_detail['Earning'] = stocks_detail['Dividend'] + \
 #                            stocks_summary['R_PnL'] + stocks_summary['UR_PnL']
 
-    # return stocks_detail.reset_index().round(2)
-    return stocks_detail.round(2)
+    return stocks_detail.reset_index().round(2)
+    #return stocks_detail.round(2)
 
 
 def get_summary(detail, showAll=False):
@@ -117,6 +117,6 @@ def get_summary(detail, showAll=False):
     summary = detail.loc[lambda df: df.Qty > 0] if not showAll else detail
 
     # Extract useful summary fields.
-    df = summary[['Name', 'Qty', 'B_Cost', 'R_PnL', 'Dividend']]
+    df = summary[['Symbol', 'Name', 'Qty', 'B_Cost', 'R_PnL', 'Dividend']]
 
     return df
