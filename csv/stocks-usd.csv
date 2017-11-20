@@ -1,25 +1,24 @@
-Symbol,Name,Currency
-AAPL,Apple Inc,USD
-ADPT,Adeptus Health,USD
-ALN,绿润集团,USD
-CCIH,蓝汛,USD
-CYOU,畅游,USD
-CYTX,赛瑞托疗法,USD
-EJ,易居中国,USD
-FSLR,First Solar Inc,USD
-HABT,Habit Restaurants,USD
-JD,京东,USD
-JKS,晶科能源,USD
-KANG,爱康国宾,USD
-LC,Lending Club,USD
-MOMO,陌陌,USD
-MU,Micron Technology Inc,USD
-NVDA,Nvidia Corporation,USD
-NVRO,Nevro Corporation,USD
-QUNR,去哪儿网,USD
-T14,天津中新药业,SGD
-TEDU,达内科技,USD
-VNET,世纪互联,USD
-WB,微博,USD
-XIN,鑫苑置业,USD
-YONG,永业国际,USD
+Symbol,Name,Hold
+AAPL,Apple Inc,False
+ADPT,Adeptus Health,False
+ALN,绿润集团,False
+CCIH,蓝汛,False
+CYOU,畅游,False
+CYTX,赛瑞托疗法,False
+EJ,易居中国,False
+FSLR,First Solar Inc,False
+HABT,Habit Restaurants,False
+JD,京东,False
+JKS,晶科能源,False
+KANG,爱康国宾,False
+LC,Lending Club,False
+MOMO,陌陌,False
+MU,Micron Technology Inc,False
+NVDA,Nvidia Corporation,False
+NVRO,Nevro Corporation,False
+QUNR,去哪儿网,False
+TEDU,达内科技,False
+VNET,世纪互联,False
+WB,微博,False
+XIN,鑫苑置业,False
+YONG,永业国际,False

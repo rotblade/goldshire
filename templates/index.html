@@ -1,75 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
+    <title> Portfolio Performance</title>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>Portfolio Performance</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">  <title>Portfolio Performance</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap theme -->
-    <!-- <link href="static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet"> -->
-
-    <!-- Custom styles for this template -->
+    <!-- Custom CSS styles -->
     <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
   </head>
 
   <body>
     <div id="app">
-    <!-- Fixed navbar -->
-    <!-- <nav class="navbar navbar-inverse navbar-fixed-top"> -->
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Portfolio Performance</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ url_for('index') }}">Overall</a></li>
-            <li><a @click.prevent="getStocks({{ url_for('get_stocks') }})" href="#">Stocks List</a></li>
+      <!-- Static navbar -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <span class="navbar-brand mb-0 h1">Portfolio Performance</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="{{ url_for('index') }}">Overall<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" @click.prevent="getStocks({{ url_for('get_stocks') }})" href="#">Stocks</a>
+            </li>
           </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-      <!-- </nav> -->
+        </div>
+      </nav>
 
-    <div class="container theme-showcase" role="main">
+      <div class="container-fluid">
 
-      <div class="row">
-        <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-8">
+          </div>
+          <div class="col-md-4">
+          </div>
         </div>
-        <div class="col-md-4">
+        <div class="row">
+          <div class="col-md-8">
+            <grid-stocks :data="gridData" :columns="gridColumns">
+            </grid-stocks>
+          </div>
+          <div class="col-md-4">
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-md-8">
-          <grid-stocks :data="gridData" :columns="gridColumns">
-          </grid-stocks>
-        </div>
-        <div class="col-md-4">
-        </div>
-      </div>
 
-    </div> <!-- /container -->
+      </div> <!-- /container -->
     </div> <!-- End of Vue app -->
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
 
     <!-- Vue & Axios library
     ================================================ -->
@@ -104,5 +86,13 @@
 
     <!-- Vue components and instance -->
     <script type=text/javascript src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
   </body>
 </html>

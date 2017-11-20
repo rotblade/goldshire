@@ -1,7 +1,7 @@
 import datetime
 import pandas as pd
 import numpy as np
-import tushare as ts
+import requests
 
 
 def csv2df(csv_stock, csv_trade, csv_divid):
@@ -25,25 +25,27 @@ def csv2df(csv_stock, csv_trade, csv_divid):
     return (stocks, trades, divids)
 
 
-def get_ts_quote(symbols, isA=True):
-    cons = ts.get_apis()
-    last = datetime.datetime.today() - datetime.timedelta(days=7)
-
-    quotes_dict = {}
-    for item in symbols:
-        if isA:
-            df = ts.bar(item, conn=cons, freq='D',
-                        start_date=last, end_date='')
+def get_tx_quotes(symbols, market='cn'):
+    tx_api = 'http://qt.gtimg.cn/q=s_'
+    if market=='cn':
+        codes = symbols.apply(lambda s: 'sz'+s if s[:2]=='00' else 'sh'+s)
+    else:
+        if market=='hk':
+            codes = 'hk' + symbols
         else:
-            df = ts.bar(item, conn=cons, asset='X',
-                        start_date=last, end_date='')
-        quotes_dict[item] = df['close'].iloc[0]
+            codes = 'us' + symbols
 
-    quotes = pd.Series(quotes_dict)
-    return quotes
+    stocks_url = tx_api + codes
+    lasts=[]
+    for k, v in stocks_url.items():
+        r = requests.get(v)
+        lasts.append(r.text.split('~')[2:6])
+
+    cols = ['Symbol', 'Last', 'Change', 'Percent']
+    return pd.DataFrame(lasts, columns=cols).set_index('Symbol')
 
 
-def get_detail(stocks, trades, divids):
+def get_static(stocks, trades, divids):
     '''
     stocks: A pandas dataframe that lists all traded stocks.
     trades: A pandas dataframe that lists all trades.
@@ -70,53 +72,63 @@ def get_detail(stocks, trades, divids):
 
     # Claculate total bought/sold qty for each stock.
     qty_sum = group_trade['Qty'].sum().unstack(fill_value=0)
-    stocks_detail = stocks.join(qty_sum)
-    stocks_detail.columns = ['Name', 'B_Qty', 'S_Qty']
-    stocks_detail['Qty'] = stocks_detail['B_Qty'] + stocks_detail['S_Qty']
+    s_df = stocks.join(qty_sum)
+    s_df.columns = ['Name', 'Hold', 'B_Qty', 'S_Qty']
+    s_df['Qty'] = s_df['B_Qty'] + s_df['S_Qty']
 
     # Calculate average bought/sold price.
     basis = group_trade['Basis'].sum().unstack(fill_value=0)
-    stocks_detail['B_Cost'] = basis['BUY'] / stocks_detail['B_Qty']
-    stocks_detail['S_Cost'] = basis['SELL'] / stocks_detail['S_Qty'].abs()
+    s_df['B_Cost'] = basis['BUY'] / s_df['B_Qty']
+    s_df['S_Cost'] = basis['SELL'] / s_df['S_Qty'].abs()
 
     # Calculate realized profit/loss
-    sold_cost = stocks_detail['B_Cost'] * stocks_detail['S_Qty'].abs()
-    stocks_detail['R_PnL'] = basis['SELL'] - sold_cost
+    sold_cost = s_df['B_Cost'] * s_df['S_Qty'].abs()
+    s_df['R_PnL'] = basis['SELL'] - sold_cost
 
     # Calculate dividend for each stock.
     divid_fee = divids['Commission'] + divids['Tax']
     divids['Dividend'] = divids['PerShare'] * divids['Qty'] - divid_fee
-    stocks_detail['Dividend'] = group_divid['Dividend'].sum()
+    s_df['Dividend'] = group_divid['Dividend'].sum()
 
     # Fill NaN with zero value for realized profit/loss and dividend.
-    stocks_detail['R_PnL'].fillna(0.0, inplace=True)
-    stocks_detail['Dividend'].fillna(0.0, inplace=True)
+    s_df['R_PnL'].fillna(0.0, inplace=True)
+    s_df['Dividend'].fillna(0.0, inplace=True)
 
-#    # Get latest price for the holding stocks.
-#    hold = stocks_detail.loc[lambda df: df.Qty > 0]
-#    ts_last = get_ts_quote(hold.index)
-#    stocks_detail['Last'] = ts_last
-#
-#    # Calculate unrealized profit/loss for holding stocks.
-#    stocks_detail['UR_PnL'] = stocks_detail['Qty'] * \
-#                            (stocks_detail['Last'] - stocks_detail['B_Cost'])
-#
-#    # Calculate total earning for each stock.
-#    stocks_detail['Earning'] = stocks_detail['Dividend'] + \
-#                            stocks_summary['R_PnL'] + stocks_summary['UR_PnL']
-
-    return stocks_detail.reset_index().round(2)
-    #return stocks_detail.round(2)
+    return s_df.reset_index()
+    # return s_df
 
 
-def get_summary(detail, showAll=False):
+def get_detail(s_df, isA=True):
     '''
-    Get stocks summary from detail information.
+    '''
+    hold = s_df.loc[lambda df: df.Qty > 0]
+    quotes = get_tx_quotes(hold.index, isA)
+    detail = s_df.join(quotes)
+
+    # Calculate unrealized profit/loss for holding stocks.
+    detail['UR_PnL'] = detail['Qty'] * (detail['Last'] - detail['B_Cost'])
+
+    # Fill unrealized profit/loss NaN with zero value for all not hold stocks.
+    detail['UR_PnL'].fillna(0.0, inplace=True)
+
+    # Calculate total earning for each stock.
+    detail['Earning'] = detail['Dividend'] + detail['R_PnL'] + detail['UR_PnL']
+
+    # Calculate total earning for each stock.
+    detail['Return'] = detail['Earning'] / (detail['B_Qty'] * detail['B_Cost'])
+
+    return detail.round(2)
+
+
+
+def get_summary(df, showAll=False):
+    '''
+    Get stocks summary.
     '''
     # Show only holding stocks by default
-    summary = detail.loc[lambda df: df.Qty > 0] if not showAll else detail
+    hold = df.loc[lambda df: df.Qty > 0] if not showAll else detail
 
     # Extract useful summary fields.
-    df = summary[['Symbol', 'Name', 'Qty', 'B_Cost', 'R_PnL', 'Dividend']]
+    summary = hold[['Symbol', 'Name', 'Qty', 'Last', 'Percent', 'Earning', 'Return']]
 
-    return df
+    return summary
