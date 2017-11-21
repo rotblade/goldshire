@@ -1,7 +1,0 @@
-Transaction,Date,Amount,Currency,Exchange
-Deposit,2016-01-01,1415000.0,CNY,1
-Withdraw,2016-05-31,-320000.0,CNY,1
-Withdraw,2017-06-26,-80000.0,CNY,1
-Deposit,2017-08-03,50000.0,CNY,1
-Withdraw,2017-08-08,-20000.0,CNY,1
-Withdraw,2017-09-21,-20000.0,CNY,1
