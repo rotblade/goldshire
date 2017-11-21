@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import requests
+import csv
+from os.path import join
 
 def csv2df(csvs):
     '''
@@ -17,6 +19,20 @@ def csv2df(csvs):
                          dtype={'Symbol': str, 'Qty': np.int64})
 
     return (stocks, trades, divids)
+
+
+def quotes2csvs(symbols, datestring, csvpath):
+    '''
+    symbols: A pandas Series with index='stock code' & column='close price'.
+
+    Output: Open corresponding historic csv file for each stock code. Then
+    write today's close price into it.
+    '''
+    for k, v in symbols.items():
+        # print((k, datestring, v))
+        with open(join(csvpath, k+'.csv'), 'a', newline='') as f:
+            writer = csv.writer(f, lineterminator="\n")
+            writer.writerow([datestring, v])
 
 
 def get_tx_quotes(symbols, market='cn'):
