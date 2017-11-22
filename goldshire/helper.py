@@ -40,9 +40,13 @@ def quotes2csvs(symbols, datestring, csvpath):
             writer.writerow([datestring, v])
 
 
-def get_lastprice(symbol, csvpath):
-    df = pd.read_csv(join(csvpath, symbol+'.csv'))
-    return df.iloc[-1, 1]
+def get_lastprice(symbols, csvpath):
+    prices = []
+    for symbol in symbols:
+        df = pd.read_csv(join(csvpath, symbol+'.csv'))
+        prices.append(df.iloc[-1, 1])
+
+    return pd.Series(prices, index=symbols)
 
 def get_tx_quotes(symbols, market='cn'):
     tx_api = 'http://qt.gtimg.cn/q=s_'

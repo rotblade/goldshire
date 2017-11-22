@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 import datetime
 from helper import *
- 
+
 
 class TestHelperMethods(unittest.TestCase):
     def setUp(self):
@@ -18,7 +18,7 @@ class TestHelperMethods(unittest.TestCase):
         self.today = datetime.date.today().strftime('%Y-%m-%d')
 
     def test_csv2df(self):
-        dfs = csv2df(self.files)
+        dfs = csv2df(self.files, 'csv/')
         self.assertEqual(len(self.df1), len(dfs[0]))
         self.assertEqual(len(self.df2), len(dfs[1]))
         self.assertEqual(len(self.df3), len(dfs[2]))
@@ -30,11 +30,12 @@ class TestHelperMethods(unittest.TestCase):
         self.assertEqual(df.iloc[-1, 1], 23.76)
 
     def test_get_lastprice(self):
-        self.assertEqual(get_lastprice('888888', self.csvpath), 23.76)
+        dfs = csv2df(self.files, 'csv/')
+        df = dfs[0].loc[lambda df: df.Hold]
+        self.assertEqual(len(get_lastprice(df.index, 'csv/history/')), 8 )
 
     def test_get_tx_quotes(self):
         df = get_tx_quotes(self.codes)
-        print(df)
         self.assertTrue(len(df) > 0)
 
 

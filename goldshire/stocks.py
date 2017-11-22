@@ -6,6 +6,7 @@ class Invest:
     '''
     Represent long term investment in one currency.
     '''
+
     def __init__(self, files, csvpath, currency):
         dfs = csv2df(files, csvpath)
         self._stocks = dfs[0]
@@ -24,15 +25,15 @@ class Invest:
         proceed = self._trades['Price'] * self._trades['Qty'].abs()
         fee = self._trades['Commission'] + self._trades['Tax']
         self._trades['Basis'] = np.where(self._trades['Transaction'] == 'BUY',
-                               proceed + fee, proceed - fee)
+                                         proceed + fee, proceed - fee)
 
     def _tidy_dividends(self):
         '''
         Add actual income from dividend.
         '''
         fee = self._divids['Commission'] + self._divids['Tax']
-        self._divids['Dividend'] = self._divids['PerShare'] * self._divids['Qty']- fee
-
+        self._divids['Dividend'] = self._divids['PerShare'] * \
+            self._divids['Qty'] - fee
 
     def _calc_tradedata(self):
         '''
@@ -43,7 +44,8 @@ class Invest:
             4. Realized profit/loss.
             5. Unrealized profit/loss.
         '''
-        group_trade = self._trades.groupby([self._trades.index, self._trades['Transaction']])
+        group_trade = self._trades.groupby(
+            [self._trades.index, self._trades['Transaction']])
         group_divid = self._divids.groupby(self._divids.index)
 
         # Claculate total bought/sold qty for each stock.
@@ -68,45 +70,42 @@ class Invest:
 
         # Calcuate unrealized profit/loss
         hold = df.loc[lambda df: df.Qty > 0]
-        df['Last'] = hold.apply(get_lastprice, args=(self.csvpath,))
+        df['Last'] = get_lastprice(hold.index, self.csvpath+'history/')
         df['UR_PnL'] = df['Qty'] * (df['Last'] - df['B_Cost'])
         df['UR_PnL'].fillna(0.0, inplace=True)
-    
+
         # Calculate total earning for each stock.
         df['Earning'] = df['Dividend'] + df['R_PnL'] + df['UR_PnL']
-    
+
         # Calculate return for each stock.
         df['Return'] = df['Earning'] / (df['B_Qty'] * df['B_Cost'])
-    
-        return df
 
+        return df
 
     def setdata(self):
         self._tidy_trades()
         self._tidy_dividends()
-    
-        self.data =self._calc_tradedata()
 
+        self.data = self._calc_tradedata()
 
     def get_summary(self, showAll=False):
         '''
         Get stocks summary.
         '''
         # Show only holding stocks by default
-        stocks = self.data.loc[lambda df: df.Qty > 0] if not showAll else self.data
-    
+        stocks = self.data.loc[lambda df: df.Qty >
+                               0] if not showAll else self.data
         # Extract useful summary fields.
-        summary = stocks[['Symbol', 'Name', 'Qty', 'Close', 'Earning', 'Return']]
-    
-        return summary.reset_index.round(2)
+        summary = stocks[['Symbol', 'Name',
+                          'Qty', 'Close', 'Earning', 'Return']]
 
+        return summary.reset_index.round(2)
 
     def get_stock(self, symbol):
         '''
         Get detail for one traded stock.
         '''
         return self.data.loc[symbol].squeeze()
-
 
     @staticmethod
     def whichmarket(symbol):
