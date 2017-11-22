@@ -1,15 +1,15 @@
 from flask import Flask, jsonify, render_template
 #from flask_bootstrap import Bootstrap
-from stocks import csv2df, get_detail, get_summary
+from stocks import Invest
 
 
-stocks_cny = csv2df('stocks-cny.csv', 'trades-cny.csv', 'dividends-cny.csv')
-stocks_hkd = csv2df('stocks-hkd.csv', 'trades-hkd.csv', 'dividends-hkd.csv')
-stocks_usd = csv2df('stocks-usd.csv', 'trades-usd.csv', 'dividends-usd.csv')
+cnyfiles = ('stocks-cny.csv', 'trades-cny.csv', 'dividends-cny.csv')
+hkdfiles = ('stocks-hkd.csv', 'trades-hkd.csv', 'dividends-hkd.csv')
+usdfiles = ('stocks-usd.csv', 'trades-usd.csv', 'dividends-usd.csv')
 
-detail_cny = get_detail(stocks_cny[0], stocks_cny[1], stocks_cny[2])
-detail_hkd = get_detail(stocks_hkd[0], stocks_hkd[1], stocks_hkd[2])
-detail_usd = get_detail(stocks_usd[0], stocks_usd[1], stocks_usd[2])
+invest_cny = new Invest(cnyfiles, 'CNY')
+invest_hkd = new Invest(hkdfiles, 'HKD')
+invest_usd = new Invest(usdfiles, 'USD')
 
 
 def create_app():
@@ -32,14 +32,14 @@ def get_stocks():
     header = ['代码',
               '名称',
               '持仓数量',
-              '当前价格',
+              '最后价格',
               '盈亏',
-              '收益率']
+              '回报']
 
     summary = {
-        'CNY': get_summary(detail_cny).to_dict(orient='records'),
-        'HKD': get_summary(detail_hkd).to_dict(orient='records'),
-        'USD': get_summary(detail_usd).to_dict(orient='records')
+        'CNY': invest_cny.get_summary.to_dict(orient='records'),
+        'HKD': invest_hkd.get_summary.to_dict(orient='records'),
+        'USD': invest_usd.get_summary.to_dict(orient='records')
     }
 
     for key in summary:
@@ -54,5 +54,10 @@ def get_stocks():
 
 @app.route('/stocks/<symbol>/')
 def get_stock(symbol):
-    stock = stk_detail.loc[symbol]
+    stock = invest_cny.get_stock(symbol)
+    if Invest.whichmarket(symbol) == 'hk':
+        stock = invest_cny.get_stock(symbol)
+    if Invest.whichmarket(symbol) == 'us':
+        stock = invest_hkd.get_stock(symbol)
+
     return jsonify(stock.to_dict())

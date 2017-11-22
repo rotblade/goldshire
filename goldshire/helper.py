@@ -4,7 +4,7 @@ import requests
 import csv
 from os.path import join
 
-def csv2df(csvs):
+def csv2df(csvs, csvpath):
     '''
     csvs[0]: CSV file that includes stocks info.
     csvs[1]: CSV file that includes trades info.
@@ -12,11 +12,16 @@ def csv2df(csvs):
 
     Return: A tuple with Pandas dataframe for the 3 CSV files.
     '''
-    stocks = pd.read_csv('csv/' + csvs[0], dtype={'Symbol': str})
-    trades = pd.read_csv('csv/' + csvs[1],
+    stocks = pd.read_csv(csvpath + csvs[0], dtype={'Symbol': str})
+    trades = pd.read_csv(csvpath + csvs[1],
                          dtype={'Symbol': str, 'Qty': np.int64})
-    divids = pd.read_csv('csv/' + csvs[2],
+    divids = pd.read_csv(csvpath + csvs[2],
                          dtype={'Symbol': str, 'Qty': np.int64})
+
+    # Set stock's symbol as Dataframe index.
+    stocks.set_index('Symbol', inplace=True)
+    trades.set_index('Symbol', inplace=True)
+    divids.set_index('Symbol', inplace=True)
 
     return (stocks, trades, divids)
 
@@ -34,6 +39,10 @@ def quotes2csvs(symbols, datestring, csvpath):
             writer = csv.writer(f, lineterminator="\n")
             writer.writerow([datestring, v])
 
+
+def get_lastprice(symbol, csvpath):
+    df = pd.read_csv(join(csvpath, symbol+'.csv'))
+    return df.iloc[-1, 1]
 
 def get_tx_quotes(symbols, market='cn'):
     tx_api = 'http://qt.gtimg.cn/q=s_'
