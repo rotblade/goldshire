@@ -1,4 +1,4 @@
-from helper import csv2df, get_lastprice
+from .helper import csv2df, get_lastprice
 import numpy as np
 
 
@@ -80,6 +80,10 @@ class Invest:
         # Calculate return for each stock.
         df['Return'] = df['Earning'] / (df['B_Qty'] * df['B_Cost'])
 
+
+        # Add currency info
+        df['Currency'] = self.currency
+
         return df
 
     def setdata(self):
@@ -96,23 +100,23 @@ class Invest:
         stocks = self.data.loc[lambda df: df.Qty >
                                0] if not showAll else self.data
         # Extract useful summary fields.
-        summary = stocks[['Symbol', 'Name',
-                          'Qty', 'Close', 'Earning', 'Return']]
+        summary = stocks.reset_index()[['Symbol', 'Name', 'Currency',
+                          'Qty', 'Last', 'Earning', 'Return']]
 
-        return summary.reset_index.round(2)
+        return summary.round(2)
 
     def get_stock(self, symbol):
         '''
         Get detail for one traded stock.
         '''
-        return self.data.loc[symbol].squeeze()
+        return self.data.loc[symbol]
 
     @staticmethod
-    def whichmarket(symbol):
+    def whichMarket(symbol):
         if symbol.isdigit():
             if len(symbol) > 5:
-                return 'cn'
+                return 'CNY'
             else:
-                return 'hk'
+                return 'HKD'
         else:
-            return 'us'
+            return 'USD'

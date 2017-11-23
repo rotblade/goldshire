@@ -13,12 +13,11 @@ class TestStocksMethods(unittest.TestCase):
         df = self.my_invest.get_summary()
         self.assertEqual(len(df), 8)
         df = self.my_invest.get_summary(showAll=True)
-        self.assertEqual(len(df), 43)
+        self.assertEqual(len(df), 51)
 
     def test_get_stock(self):
         df = self.my_invest.get_stock('000001')
-        print(df)
-        self.assertEqual(len(df), 6)
+        self.assertEqual(len(df), 13)
 
 
 if __name__ == '__main__':

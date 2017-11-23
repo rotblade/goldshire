@@ -1,0 +1,1 @@
+from .goldshire import app
