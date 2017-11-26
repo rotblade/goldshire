@@ -1,12 +1,12 @@
-from .helper import csv2df, get_lastprice
+import datetime
 import numpy as np
+from .helper import csv2df, get_lastprice
 
 
 class Invest:
     '''
     Represent long term investment in one currency.
     '''
-
     def __init__(self, files, csvpath, currency):
         dfs = csv2df(files, csvpath)
         self._stocks = dfs[0]
@@ -104,6 +104,7 @@ class Invest:
                           'Qty', 'Last', 'Earning', 'Return']]
 
         return summary.round(2)
+
 
     def get_stock(self, symbol):
         '''
