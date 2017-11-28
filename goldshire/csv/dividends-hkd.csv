@@ -1,4 +1,4 @@
-Symbol,ExDate,Qty,PerShare,Commission,Tax,Broker
+Symbol,Date,Qty,PerShare,Commission,Tax,Broker
 00107,2013-06-03,10000,0.10037,0,100.37,IB
 01988,2013-09-02,1500,0.19873214,0,29.81,IB
 00272,2013-09-09,4000,0.022,0,8.8,IB
