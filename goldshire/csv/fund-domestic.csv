@@ -1,0 +1,9 @@
+Date,Transaction,Amount,Currency,Exchange,Memo
+2015-12-31,Deposit,1415000.0,CNY,1,初始资金
+2016-01-25,Deposit,12962.0,CNY,1,2015年末打新分红
+2016-05-31,Withdraw,-320000.0,CNY,1,买房款
+2017-06-26,Withdraw,-80000.0,CNY,1,买车款
+2017-08-03,Deposit,50000.0,CNY,1,招行e招贷部分资金
+2017-08-08,Withdraw,-20000.0,CNY,1,日常消费
+2017-09-21,Withdraw,-20000.0,CNY,1,缅甸琥珀和万鹏婚礼
+2017-11-22,Deposit,40000.0,CNY,1,岳父母增资

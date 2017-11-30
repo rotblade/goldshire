@@ -9,7 +9,7 @@ stocks_cny = pd.read_csv('csv/stocks-cny.csv', dtype={'Symbol': str, 'Hold': np.
 stocks_hkd = pd.read_csv('csv/stocks-hkd.csv', dtype={'Symbol': str, 'Hold': np.bool})
 stocks_usd = pd.read_csv('csv/stocks-usd.csv', dtype={'Symbol': str, 'Hold': np.bool})
 
-csvpath = '/Users/gavin/code/goldshire/goldshire/csv/history'
+csvpath = '/Users/gavin/code/goldshire/goldshire/csv/historic'
 today = datetime.date.today().strftime('%Y-%m-%d')
 
 if __name__ == '__main__':

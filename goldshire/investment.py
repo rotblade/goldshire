@@ -6,20 +6,19 @@ from os.path import join
 import config
 
 
-def csv2df(file):
-    '''
-    Convert a csv file to Pandas dataframe.
-    '''
-    return pd.read_csv(file, parse_dates=['Date'], dtype={'Symbol': str, 'Qty': np.int64})
-
-
 class Invest:
     '''
     Represent long term investment in one base currency.
     '''
 
-    def __init__(self, funds, stocks, currency):
-        pass
+    def __init__(self, currency, fund, stocks, csvpath ):
+        self.currency = currency
+        self._stocks = stocks
+        fund = pd.read_csv(csvpath+fund, parse_dates=['Date'], index_col=0)
+        fund['Capital'] = fund['Amount'] * fund['Exchange']
+        self._fund = fund
+        self.initial = fund.iloc[0, 5]
+        self.start = datetime.date(2016, 1, 1)
 
 
 class Stocks:
@@ -31,7 +30,10 @@ class Stocks:
         self.currency = currency
         self._csvpath = csvpath
 
-        trades = csv2df(records[0]).set_index('Symbol')
+        trades = pd.read_csv(records[0], parse_dates=['Date'],
+                             dtype={'Symbol': str, 'Qty': np.int64})
+        trades.set_index('Symbol', inplace=True)
+
         proceed = trades['Price'] * trades['Qty'].abs()
         fee = trades['Commission'] + trades['Tax']
         trades['Basis'] = np.where(
