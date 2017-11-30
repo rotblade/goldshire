@@ -1,5 +1,6 @@
 import datetime
 import pandas as pd
+from pandas.tseries.offsets import DateOffset
 import numpy as np
 from os.path import join
 import config
@@ -42,14 +43,43 @@ class Stocks:
         dividends['Dividend'] = dividends['PerShare'] * dividends['Qty'] - fee
         self._dividends = dividends
 
-    def getPrice(self, symbols, day=str(datetime.date.today())):
+    def getPrice(self, symbols, day=datetime.date.today()):
         prices = []
         for symbol in symbols:
             df = pd.read_csv(join(self._csvpath+'historic/', symbol + '.csv'),
-                                  names=['date', 'price'], index_col=0)
+                             names=['date', 'price'], parse_dates=['date']
+                             index_col=0)
+            if day not in df.index:
+                day_range = pd.date_range(day-DateOffset(days=10),
+                                          day-DateOffset(days=1))
+                isFound = False
+                for d in day_range:
+                    if d in df.index:
+                        day = d
+                        isFound = True
+                        break;
+                if not isFound:
+                    raise KeyError('No price found for specific date!')
+
             prices.append(df.loc[day, 'price'])
 
         return pd.Series(prices, index=symbols)
+
+
+    def getHolding(self, end_date=datetime.date.today()):
+        until = pd.Timestamp(end_date)
+
+        trades = self._trades.loc[lambda df: df.Date <= until]
+        dividends = self._dividends.loc[lambda df: df.Date <= until]
+
+        grp_trade = trades.groupby([trades.index, trades['Transaction']])
+        grp_dividend = dividends.groupby(dividends.index)
+
+        stocks = trades[['Name']].drop_duplicates()
+        bs_sum = grp_trade['Qty'].sum().unstack(fill_value=0)
+        df = stocks.join(bs_sum)
+        return df['Name'].loc[lambda df: df.BUY+df.SELL > 0]
+
 
     def getStocks(self, end_date=datetime.date.today()):
         until = pd.Timestamp(end_date)
