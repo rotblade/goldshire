@@ -1,9 +1,10 @@
 import datetime
-import pandas as pd
-from pandas.tseries.offsets import DateOffset
 import numpy as np
+import pandas as pd
 from os.path import join
-import config
+from pandas.tseries.offsets import DateOffset
+from forex_python.converter import CurrencyRates
+from config import csvpath
 
 
 class Invest:
@@ -11,14 +12,54 @@ class Invest:
     Represent long term investment in one base currency.
     '''
 
-    def __init__(self, currency, fund, stocks, csvpath ):
-        self.currency = currency
-        self._stocks = stocks
+    def __init__(self, currency, fund, stocks, start=datetime.date(2016,1,1)):
+        self.currency = currency.upper()
+        self.start = start
         fund = pd.read_csv(csvpath+fund, parse_dates=['Date'], index_col=0)
-        fund['Capital'] = fund['Amount'] * fund['Exchange']
+        c = CurrencyRates()
+        def c2BCurrency(r):
+            if r.Currency.upper() == self.currency:
+                return r.Amount
+            else:
+                return r.Amount * c.get_rate(r.Currency.upper(),
+                                             self.currency, start)
+        fund['BaseAmount'] = fund.apply(c2BCurrency)
         self._fund = fund
-        self.initial = fund.iloc[0, 5]
-        self.start = datetime.date(2016, 1, 1)
+        self._stocks = stocks
+        self.initial = fund.loc[:start]['BaseAmount'].sum()
+
+
+    def getInvest(self, end=datetime.date.today()):
+        capital = self._fund.loc[:end]['BaseAmount'].sum()
+        invest = {
+            'capital': capital,
+            'bought': 0.0,
+            'earning': 0.0,
+            'commission': 0.0,
+            'tax': 0.0,
+        }
+            
+        value = self.initial
+        for s in self._stocks:
+            df = s.getStocks(end)
+            cost = df['B_Cost'].sum()
+            earning = df['Earning'].sum()
+            commission = df['Commission_t'].sum() + df['Commission_d'].sum()
+            tax = df['Tax_t'].sum() + df['Tax_d'].sum()
+
+            if s.currency != self.currency:
+                ex_rate = c.get_rate(s.currency, self.currency, end)
+                cost = cost * ex_rate
+                earning = earning * ex_rate
+                commission = commission * ex_rate
+                tax = tax * ex_rate
+
+            invest['bought'] += cost
+            invest['earning'] += earning
+            invest['commission'] += commission
+            invest['tax'] += tax
+
+        return invest
 
 
 class Stocks:
@@ -26,7 +67,7 @@ class Stocks:
     Represent a basket of stocks with their trade & dividend records.
     '''
 
-    def __init__(self, currency, records, csvpath):
+    def __init__(self, currency, records):
         self.currency = currency
         self._csvpath = csvpath
 
@@ -44,6 +85,40 @@ class Stocks:
         fee = dividends['Commission'] + dividends['Tax']
         dividends['Dividend'] = dividends['PerShare'] * dividends['Qty'] - fee
         self._dividends = dividends
+
+
+    def _selectRows(self, end):
+        until = pd.Timestamp(end)
+
+        trades = self._trades.loc[lambda df: df.Date <= until]
+        dividends = self._dividends.loc[lambda df: df.Date <= until]
+        grp_trade = trades.groupby([trades.index, trades['Transaction']])
+        stocks = trades[['Name']].drop_duplicates()
+        bs_sum = grp_trade['Qty'].sum().unstack(fill_value=0)
+        df = stocks.join(bs_sum)
+        df.columns = ['Name', 'B_Qty', 'S_Qty']
+        df['Qty'] = df['B_Qty'] + df['S_Qty']
+
+        return df
+
+
+    def _getTradefee(self, end):
+        until = pd.Timestamp(end)
+
+        trades = self._trades.loc[lambda df: df.Date <= until]
+        grp_trade = trades.groupby(trades.index)
+
+        return grp_trade[['Commission', 'Tax']].sum()
+
+
+    def _getDividendfee(self, end):
+        until = pd.Timestamp(end)
+
+        dividends = self._dividends.loc[lambda df: df.Date <= until]
+        grp_dividend = dividends.groupby(dividends.index)
+
+        return grp_dividend[['Commission', 'Tax']].sum()
+
 
     def getPrice(self, symbols, day=datetime.date.today()):
         prices = []
@@ -68,37 +143,18 @@ class Stocks:
         return pd.Series(prices, index=symbols)
 
 
-    def getHolding(self, end_date=datetime.date.today()):
-        until = pd.Timestamp(end_date)
-
-        trades = self._trades.loc[lambda df: df.Date <= until]
-        dividends = self._dividends.loc[lambda df: df.Date <= until]
-
-        grp_trade = trades.groupby([trades.index, trades['Transaction']])
-        grp_dividend = dividends.groupby(dividends.index)
-
-        stocks = trades[['Name']].drop_duplicates()
-        bs_sum = grp_trade['Qty'].sum().unstack(fill_value=0)
-        df = stocks.join(bs_sum)
-        return df['Name'].loc[lambda df: df.BUY+df.SELL > 0]
+    def getHolding(self, end=datetime.date.today()):
+        df = self._selectRows(end)
+        return df[['Name', 'Qty']].loc[lambda df: df.Qty > 0]
 
 
-    def getStocks(self, end_date=datetime.date.today()):
-        until = pd.Timestamp(end_date)
+    def getStocks(self, end=datetime.date.today()):
+        df = self._selectRows(end)
 
-        trades = self._trades.loc[lambda df: df.Date <= until]
-        dividends = self._dividends.loc[lambda df: df.Date <= until]
-
-        grp_trade = trades.groupby([trades.index, trades['Transaction']])
-        grp_dividend = dividends.groupby(dividends.index)
-
-        stocks = trades[['Name']].drop_duplicates()
-
-        # Claculate total bought/sold qty for each stock.
-        bs_sum = grp_trade['Qty'].sum().unstack(fill_value=0)
-        df = stocks.join(bs_sum)
-        df.columns = ['Name', 'B_Qty', 'S_Qty']
-        df['Qty'] = df['B_Qty'] + df['S_Qty']
+        # Add commission & tax
+        df = df.join(self._getTradefee(end))
+        df = df.join(self._getDividendfee(end), lsuffix='_t', rsuffix='_d')
+        df[['Commission_d', 'Tax_d']].fillna(0.0, inplace=True)
 
         # Calculate average bought/sold price.
         basis_sum = grp_trade['Basis'].sum().unstack(fill_value=0)
@@ -106,6 +162,7 @@ class Stocks:
         df['S_Cost'] = basis_sum['SELL'] / df['S_Qty'].abs()
 
         # Calculate dividend for each stock.
+        grp_dividend = dividends.groupby(dividends.index)
         df['Dividend'] = grp_dividend['Dividend'].sum()
         df['Dividend'].fillna(0.0, inplace=True)
 
@@ -127,6 +184,6 @@ class Stocks:
         df['Return'] = df['Earning'] / (df['B_Qty'] * df['B_Cost'])
 
         # Add currency info
-        df['Currency'] = self.currency.capitalize()
+        df['Currency'] = self.currency.upper()
 
         return df
