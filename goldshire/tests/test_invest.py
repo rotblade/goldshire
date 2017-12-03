@@ -1,58 +1,34 @@
 import unittest
 import datetime
 from config import *
-from investment import Stocks
+from investment import Invest, Stocks
 
 
-class TestStocks(unittest.TestCase):
+class TestInvest(unittest.TestCase):
     def setUp(self):
-        self.before = datetime.date(2017, 2, 1)
+        self.before = datetime.date(2016, 12, 31)
         self.today = datetime.date.today()
-        self.pfl = {}
-        for k, v in stocks.items():
-             self.pfl[k] = Stocks(k, stocks[k])
+        self.fnds = {}
+        for k, v in funds.items():
+            stks = [Stocks(s, stocks[s]) for s in v[1:]]
+            self.fnds[k] = Invest(k, v[0], stks)
 
     def test_new(self):
-        for v in self.pfl.values():
-            self.assertTrue(len(v._trades) > 0)
-            self.assertTrue(len(v._dividends) > 0)
+        for v in self.fnds.values():
+            self.assertTrue(v.initial > 0)
 
-    def test_preCal(self):
-        df = self.pfl['hkd']._preCal(self.before)
-        fields = ['Name', 'Qty', 'B_Cost']
-        for field in fields:
-            self.assertTrue(field in df.columns)
+    def test_getInvest(self):
+        import pprint
+        pp = pprint.PrettyPrinter(indent=4)
 
-    def test_getTrade(self):
-        s_df = self.pfl['cny']._preCal(self.before)
-        df = self.pfl['cny']._getTrade(s_df, self.before)
-        fields = ['R_PnL', 'Last', 'UR_PnL', 'Commission', 'Tax']
-        for field in fields:
-            self.assertTrue(field in df.columns)
-
-    def test_getDividend(self):
-        df = self.pfl['cny']._getDividend(self.before)
-        fields = ['Commission', 'Tax', 'Dividend']
-        for field in fields:
-            self.assertTrue(field in df.columns)
-
-    def test_getPrice(self):
-        symbols = ['000895', '600585', '600660']
-        prices = Stocks.getPrice(csvpath, symbols, self.before)
-        self.assertEqual(prices.iloc[0], 21.40)
-        self.assertEqual(prices.iloc[1], 19.93)
-        self.assertEqual(prices.iloc[2], 18.80)
-
-    def test_getHolding(self):
-        holding = self.pfl['hkd'].getHolding(self.today)
-        self.assertTrue(len(holding) > 0 and len(holding) < 10)
-
-    def test_getStocks(self):
-        stocks = self.pfl['cny'].getStocks(self.before)
-        fields = ['Commission_t', 'Tax_t', 'Commission_d', 'Tax_d', 'Earning', 'Return']
-        for field in fields:
-            self.assertTrue(field in stocks.columns)
-
+        invest = {}
+        for k, v in self.fnds.items():
+            invest[k] = v.getInvest(self.before)
+        pp.pprint(invest)
+        invest = {}
+        for k, v in self.fnds.items():
+            invest[k] = v.getInvest(self.today)
+        pp.pprint(invest)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,5 +1,5 @@
 Date,Transaction,Amount,Currency,Exchange,Memo
-2015-12-31,Deposit,1415000.0,CNY,1,初始资金
+2015-12-31,Deposit,1505000.0,CNY,1,初始资金
 2016-01-25,Deposit,12962.0,CNY,1,2015年末打新分红
 2016-05-31,Withdraw,-320000.0,CNY,1,买房款
 2017-06-26,Withdraw,-80000.0,CNY,1,买车款

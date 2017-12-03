@@ -3,3 +3,4 @@ Date,Transaction,Amount,Currency,Exchange,Memo
 2012-08-21,Deposit,79000.0,hkd,0.8195,
 2014-02-07,Deposit,13000.0,usd,6.0632,
 2014-06-19,Withdraw,-7000.0,hkd,0.8036,
+2015-12-31,Deposit,234500.0,hkd,0.8368,

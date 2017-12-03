@@ -15,7 +15,7 @@ class Invest:
     def __init__(self, currency, fund, stocks, start=datetime.date(2016, 1, 1)):
         self.currency = currency.upper()
         self.start = start
-        fund = pd.read_csv(csvpath + fund, parse_dates=['Date'], index_col=0)
+        fund = pd.read_csv(fund, parse_dates=['Date'], index_col=0)
         c = CurrencyRates()
 
         def c2BCurrency(r):
@@ -24,43 +24,46 @@ class Invest:
             else:
                 return r.Amount * c.get_rate(r.Currency.upper(),
                                              self.currency, start)
-        fund['BaseAmount'] = fund.apply(c2BCurrency)
+        fund['BaseAmount'] = fund.apply(c2BCurrency, axis=1)
         self._fund = fund
         self._stocks = stocks
         self.initial = fund.loc[:start]['BaseAmount'].sum()
 
     def __repr__(self):
-        return (f'{slef.__class__.__name__} - {self.currency}')
+        return (f'{self.__class__.__name__} - {self.currency}: {self.initial}')
 
     def getInvest(self, end=datetime.date.today()):
-        capital = self._fund.loc[:end]['BaseAmount'].sum()
+        fund = self._fund.loc[:end]['BaseAmount'].sum()
         invest = {
-            'capital': capital,
-            'bought': 0.0,
+            'fund': fund,
+            'position': 0.0,
             'earning': 0.0,
             'commission': 0.0,
             'tax': 0.0,
         }
 
-        value = self.initial
         for s in self._stocks:
             df = s.getStocks(end)
-            cost = df['B_Cost'].sum()
+            hold = df.loc[lambda df: df.Qty > 0]
+            position = 0.0 if hold.empty else (hold['Last'] * hold['Qty']).sum()
             earning = df['Earning'].sum()
             commission = df['Commission_t'].sum() + df['Commission_d'].sum()
             tax = df['Tax_t'].sum() + df['Tax_d'].sum()
 
             if s.currency != self.currency:
+                c = CurrencyRates()
                 ex_rate = c.get_rate(s.currency, self.currency, end)
-                cost = cost * ex_rate
+                position = position * ex_rate
                 earning = earning * ex_rate
                 commission = commission * ex_rate
                 tax = tax * ex_rate
 
-            invest['bought'] += cost
+            invest['position'] += position
             invest['earning'] += earning
             invest['commission'] += commission
             invest['tax'] += tax
+
+        invest['value'] = invest['fund'] + invest['earning']
 
         return invest
 
