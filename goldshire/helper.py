@@ -48,12 +48,12 @@ def get_lastprice(symbols, csvpath):
 
     return pd.Series(prices, index=symbols)
 
-def get_tx_quotes(symbols, market='cn'):
+def get_tx_quotes(symbols, market='cny'):
     tx_api = 'http://qt.gtimg.cn/q=s_'
-    if market=='cn':
+    if market=='cny':
         codes = symbols.apply(lambda s: 'sz'+s if s[:2]=='00' else 'sh'+s)
     else:
-        if market=='hk':
+        if market=='hkd':
             codes = 'hk' + symbols
         else:
             codes = 'us' + symbols
