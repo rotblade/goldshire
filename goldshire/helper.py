@@ -51,18 +51,22 @@ def get_lastprice(symbols, csvpath):
 def get_tx_quotes(symbols, market='cny'):
     tx_api = 'http://qt.gtimg.cn/q=s_'
     if market=='cny':
-        codes = symbols.apply(lambda s: 'sz'+s if s[:2]=='00' else 'sh'+s)
+        # codes = symbols.apply(lambda s: 'sz'+s if s[:2]=='00' else 'sh'+s)
+        codes = ['sz'+s if s[:2]=='00' else 'sh'+s for s in symbols]
     else:
         if market=='hkd':
-            codes = 'hk' + symbols
+            # codes = 'hk' + symbols
+            codes = ['hk'+s for s in symbols]
         else:
-            codes = 'us' + symbols
+            # codes = 'us' + symbols
+            codes = ['us'+s for s in symbols]
 
-    stocks_url = tx_api + codes
+    # stocks_url = tx_api + codes
+    urls = [tx_api+s for s in codes]
     lasts=[]
-    for k, v in stocks_url.items():
-        r = requests.get(v)
-        lasts.append(r.text.split('~')[2:6])
+    for url in urls:
+        r = requests.get(url)
+        lasts.append(r.text.split('~')[3:6])
 
-    cols = ['Symbol', 'Last', 'Change', 'Percent']
-    return pd.DataFrame(lasts, columns=cols).set_index('Symbol')
+    cols = ['Last', 'Change', 'Percent']
+    return pd.DataFrame(lasts, columns=cols, index=symbols)

@@ -48,10 +48,10 @@ class TestStocks(unittest.TestCase):
         self.assertTrue(len(holding) > 0 and len(holding) < 10)
 
     def test_getStocks(self):
-        stocks = self.pfl['cny'].getStocks(self.before)
-        fields = ['Commission_t', 'Tax_t', 'Commission_d', 'Tax_d', 'Earning', 'Return', 'Capital']
+        df = self.pfl['cny'].getStocks(self.before)
+        fields = ['Commission_t', 'Tax_t', 'Commission_d', 'Tax_d', 'Earning', 'Return']
         for field in fields:
-            self.assertTrue(field in stocks.columns)
+            self.assertTrue(field in df.columns)
         #print(stocks.head(10))
 
 if __name__ == '__main__':
