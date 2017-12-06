@@ -2,7 +2,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from os.path import join
-from pandas.tseries.offsets import DateOffset
+#from pandas.tseries.offsets import DateOffset
 from forex_python.converter import CurrencyRates
 from config import csvpath
 
@@ -102,19 +102,14 @@ class Stocks:
     def getPrice(csvpath, symbols, day=datetime.date.today()):
         prices = []
         for symbol in symbols:
-            df = pd.read_csv(join(csvpath + 'historic/', symbol + '.csv'),
+            df = pd.read_csv(join(csvpath + 'historic', symbol + '.csv'),
                              names=['date', 'price'], parse_dates=['date'],
                              index_col=0)
             if day not in df.index:
-                day_range = pd.date_range(day - DateOffset(days=10),
-                                          day - DateOffset(days=1))
-                isFound = False
-                for d in day_range[::-1]:
-                    if d in df.index:
-                        day = d
-                        isFound = True
-                        break
-                if not isFound:
+                day_stamp = pd.Timestamp(day)
+                if day_stamp > df.index[0]:
+                    day = df.loc[:day].index[-1]
+                else:
                     raise KeyError(f'No price found for {symbol} on {day}')
 
             prices.append(df.loc[day, 'price'])
