@@ -1,22 +1,13 @@
 import pandas as pd
 from flask import Flask, jsonify, render_template
-from .stocks import Invest
+from .investment import Invest, Stocks
+from .config import stocks, funds
 
 
-cnyfiles = ('stocks-cny.csv', 'trades-cny.csv', 'dividends-cny.csv')
-hkdfiles = ('stocks-hkd.csv', 'trades-hkd.csv', 'dividends-hkd.csv')
-usdfiles = ('stocks-usd.csv', 'trades-usd.csv', 'dividends-usd.csv')
-
-csvpath = 'goldshire/csv/'
-
-invest = {
-    'CNY': Invest(cnyfiles, csvpath, 'CNY'),
-    'HKD': Invest(hkdfiles, csvpath, 'HKD'),
-    'USD': Invest(usdfiles, csvpath, 'USD'),
-}
-
-for v in invest.values():
-    v.setdata()
+portfolios = {}
+for k, v in funds.items():
+    stks = [Stocks(s, stocks[s]) for s in v[2:]]
+    portfolios[k] = Invest(v[0], k, v[1], stks)
 
 
 def create_app():
@@ -30,7 +21,9 @@ app = create_app()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    #return jsonify([p.getInvest() for p in portfolios.values()])
+    invests = [p.getInvest() for p in portfolios.values()]
+    return render_template('index.html', invests=invests)
 
 
 @app.route('/stocks/')

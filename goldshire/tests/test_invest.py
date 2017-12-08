@@ -1,7 +1,7 @@
 import unittest
 import datetime
-from config import *
-from investment import Invest, Stocks
+from goldshire.config import *
+from goldshire.investment import Invest, Stocks
 
 
 class TestInvest(unittest.TestCase):
@@ -10,8 +10,8 @@ class TestInvest(unittest.TestCase):
         self.today = datetime.date.today()
         self.fnds = {}
         for k, v in funds.items():
-            stks = [Stocks(s, stocks[s]) for s in v[1:]]
-            self.fnds[k] = Invest(k, v[0], stks)
+            stks = [Stocks(s, stocks[s]) for s in v[2:]]
+            self.fnds[k] = Invest(v[0], k, v[1], stks)
 
     def test_new(self):
         for v in self.fnds.values():

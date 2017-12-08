@@ -1,7 +1,7 @@
 import unittest
 import datetime
-from config import *
-from investment import Stocks
+from goldshire.config import csvpath, stocks
+from goldshire.investment import Stocks
 
 
 class TestStocks(unittest.TestCase):

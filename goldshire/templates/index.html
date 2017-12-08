@@ -37,6 +37,37 @@
 
         <div class="row">
           <div class="col-md-8">
+            <div class="jumbotron">
+              <h3 class="display-3">整体业绩</h3>
+              <hr class="my-4">
+              <p>
+              </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-8">
+            <div class="row">
+              {% for invest in invests %}
+              <div class="col-md">
+                <h6>{{ invest.name }} - {{ invest.currency }}</h6>
+                <ul class="list-group">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    初始投入：
+                    <span class="badge badge-primary badge-pill">{{ invest.fund}}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    当前资产:
+                    <span class="badge badge-primary badge-pill">{{ invest.value }}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    持仓市值：
+                    <span class="badge badge-primary badge-pill">{{ invest.position }}</span>
+                  </li>
+                </ul>
+              </div>
+              {% endfor %}
+            </div>
           </div>
           <div class="col-md-4">
           </div>

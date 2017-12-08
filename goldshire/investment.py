@@ -2,7 +2,6 @@ import datetime
 import numpy as np
 import pandas as pd
 from os.path import join
-#from pandas.tseries.offsets import DateOffset
 from forex_python.converter import CurrencyRates
 from config import csvpath
 
@@ -12,7 +11,8 @@ class Invest:
     Represent long term investment in one base currency.
     '''
 
-    def __init__(self, currency, fund, stocks, start=datetime.date(2016, 1, 1)):
+    def __init__(self, name, currency, fund, stocks, start=datetime.date(2016, 1, 1)):
+        self.name = name
         self.currency = currency.upper()
         self.start = start
         fund = pd.read_csv(fund, parse_dates=['Date'], index_col=0)
@@ -35,6 +35,8 @@ class Invest:
     def getInvest(self, end=datetime.date.today()):
         fund = self._fund.loc[:end]['BaseAmount'].sum()
         invest = {
+            'name': self.name,
+            'currency': self.currency,
             'fund': fund,
             'position': 0.0,
             'earning': 0.0,
