@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from os.path import join
 from forex_python.converter import CurrencyRates
-from config import csvpath
+# from .config import csvpath
 
 
 class Invest:
@@ -151,7 +151,7 @@ class Stocks:
 
         # Calcuate unrealized profit/loss
         hold = df.loc[lambda df: df.Qty > 0]
-        df['Last'] = Stocks.getPrice(csvpath, hold.index, end)
+        df['Last'] = Stocks.getPrice('csv/', hold.index, end)
         df['UR_PnL'] = df['Qty'] * (df['Last'] - df['B_Cost'])
         df['UR_PnL'].fillna(0.0, inplace=True)
 
