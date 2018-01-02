@@ -70,3 +70,17 @@ def get_tx_quotes(symbols, market='cny'):
 
     cols = ['Last', 'Change', 'Percent']
     return pd.DataFrame(lasts, columns=cols, index=symbols)
+
+
+def get_forexrate(s_currency, t_currency):
+    av_api = 'https://www.alphavantage.co/query'
+    params = {
+        'function': 'CURRENCY_EXCHANGE_RATE',
+        'from_currency': s_currency,
+        'to_currency': t_currency,
+        'apikey': '24JJSPF9FOR8DS08'
+    }
+
+    r = requests.get(av_api, params=params)
+    rate = r.json()['Realtime Currency Exchange Rate']['5. Exchange Rate']
+    return float(rate)

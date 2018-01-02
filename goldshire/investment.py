@@ -16,15 +16,16 @@ class Invest:
         self.currency = currency.upper()
         self.start = start
         fund = pd.read_csv(fund, parse_dates=['Date'], index_col=0)
-        c = CurrencyRates()
+        #c = CurrencyRates()
 
-        def c2BCurrency(r):
-            if r.Currency.upper() == self.currency:
-                return r.Amount
-            else:
-                return r.Amount * c.get_rate(r.Currency.upper(),
-                                             self.currency, start)
-        fund['BaseAmount'] = fund.apply(c2BCurrency, axis=1)
+        #def c2BCurrency(r):
+        #    if r.Currency.upper() == self.currency:
+        #        return r.Amount
+        #    else:
+        #        return r.Amount * c.get_rate(r.Currency.upper(),
+        #                                     self.currency, start)
+        #fund['BaseAmount'] = fund.apply(c2BCurrency, axis=1)
+        fund['BaseAmount'] = fund['Amount'] * fund['ExchangeRate']
         self._fund = fund
         self._stocks = stocks
         self.initial = fund.loc[:start]['BaseAmount'].sum()
@@ -35,8 +36,8 @@ class Invest:
     def getInvest(self, end=datetime.date.today()):
         fund = self._fund.loc[:end]['BaseAmount'].sum()
         invest = {
-            'name': self.name,
-            'currency': self.currency,
+            #'name': self.name,
+            #'currency': self.currency,
             'fund': fund,
             'position': 0.0,
             'earning': 0.0,
