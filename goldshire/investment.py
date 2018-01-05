@@ -1,9 +1,8 @@
 import datetime
 import numpy as np
 import pandas as pd
-from os.path import join
-from forex_python.converter import CurrencyRates
-# from .config import csvpath
+from pathlib import Path
+from .config import csvpath
 
 
 class Invest:
@@ -12,23 +11,18 @@ class Invest:
     '''
 
     def __init__(self, name, currency, fund, stocks, start=datetime.date(2016, 1, 1)):
+        self._path = Path.cwd()
         self.name = name
         self.currency = currency.upper()
         self.start = start
-        fund = pd.read_csv(fund, parse_dates=['Date'], index_col=0)
-        #c = CurrencyRates()
-
-        #def c2BCurrency(r):
-        #    if r.Currency.upper() == self.currency:
-        #        return r.Amount
-        #    else:
-        #        return r.Amount * c.get_rate(r.Currency.upper(),
-        #                                     self.currency, start)
-        #fund['BaseAmount'] = fund.apply(c2BCurrency, axis=1)
-        fund['BaseAmount'] = fund['Amount'] * fund['ExchangeRate']
-        self._fund = fund
+        self.u2h_rates = pd.read_csv(self._path/csvpath/'rate-usd2hkd.csv',
+                                     parse_dates=['Date'], index_col=0)
         self._stocks = stocks
-        self.initial = fund.loc[:start]['BaseAmount'].sum()
+        fund_file = self._path/csvpath/fund
+        fund_df = pd.read_csv(fund_file, parse_dates=['Date'], index_col=0)
+        fund_df['BaseAmount'] = fund_df['Amount'] * fund_df['ExchangeRate']
+        self._fund = fund_df
+        self.initial = fund_df.loc[:start]['BaseAmount'].sum()
 
     def __repr__(self):
         return (f'{self.__class__.__name__} - {self.currency}: {self.initial}')
@@ -36,8 +30,8 @@ class Invest:
     def getInvest(self, end=datetime.date.today()):
         fund = self._fund.loc[:end]['BaseAmount'].sum()
         invest = {
-            #'name': self.name,
-            #'currency': self.currency,
+            'name': self.name,
+            'currency': self.currency,
             'fund': fund,
             'position': 0.0,
             'earning': 0.0,
@@ -53,9 +47,15 @@ class Invest:
             commission = df['Commission_t'].sum() + df['Commission_d'].sum()
             tax = df['Tax_t'].sum() + df['Tax_d'].sum()
 
-            if s.currency != self.currency:
-                c = CurrencyRates()
-                ex_rate = c.get_rate(s.currency, self.currency, end)
+            if s.currency == 'USD':
+                if end not in self.u2h_rates.index:
+                    day_stamp = pd.Timestamp(end)
+                    if day_stamp > self.u2h_rates.index[0]:
+                        end = self.u2h_rates.loc[:end].index[-1]
+                    else:
+                        raise KeyError(f'No rate found for {s.currency} on {end}')
+
+                ex_rate = self.u2h_rates.loc[end].values[0]
                 position = position * ex_rate
                 earning = earning * ex_rate
                 commission = commission * ex_rate
@@ -77,9 +77,11 @@ class Stocks:
     '''
 
     def __init__(self, currency, records):
+        self._path = Path.cwd()
         self.currency = currency.upper()
 
-        trades = pd.read_csv(records[0], parse_dates=['Date'],
+        trade_file = self._path/csvpath/records[0]
+        trades = pd.read_csv(trade_file, parse_dates=['Date'],
                              dtype={'Symbol': str, 'Qty': np.int64})
         trades.set_index('Symbol', inplace=True)
 
@@ -89,7 +91,8 @@ class Stocks:
             trades['Transaction'] == 'BUY', proceed + fee, proceed - fee)
         self._trades = trades
 
-        dividends = pd.read_csv(records[1], parse_dates=['Date'],
+        dividend_file = self._path/csvpath/records[1]
+        dividends = pd.read_csv(dividend_file, parse_dates=['Date'],
                                 dtype={'Symbol': str, 'Qty': np.int64})
         dividends.set_index('Symbol', inplace=True)
         fee = dividends['Commission'] + dividends['Tax']
@@ -105,7 +108,7 @@ class Stocks:
     def getPrice(csvpath, symbols, day=datetime.date.today()):
         prices = []
         for symbol in symbols:
-            df = pd.read_csv(join(csvpath + 'historic', symbol + '.csv'),
+            df = pd.read_csv(Path.cwd()/csvpath/'historic'/f'{symbol}.csv',
                              names=['date', 'price'], parse_dates=['date'],
                              index_col=0)
             if day not in df.index:

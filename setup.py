@@ -9,6 +9,5 @@ setup(
         'flask',
         'pandas',
         'requests',
-        'forex-python',
     ],
 )

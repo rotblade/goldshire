@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import configparser
+from pathlib import Path
 
 
 config = configparser.ConfigParser()
-config._interpolation = configparser.ExtendedInterpolation()
+# config._interpolation = configparser.ExtendedInterpolation()
 config.read('settings.conf')
 
 csvpath = config['Path']['csvpath']
