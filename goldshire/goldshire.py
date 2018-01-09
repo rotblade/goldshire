@@ -1,4 +1,5 @@
 import pandas as pd
+from pathlib import Path
 from flask import Flask, jsonify, render_template
 from .investment import Invest, Stocks
 from .config import stocks, funds
@@ -9,6 +10,10 @@ for k, v in funds.items():
     stks = [Stocks(s, stocks[s]) for s in v[2:]]
     portfolios[k] = Invest(v[0], k, v[1], stks)
 
+pwd = Path.cwd()
+h2c_rates = pd.read_csv(pwd/'csv'/'rate-hkd2cny.csv',
+                        parse_dates=['Date'], index_col=0)
+h2c_rate = h2c_rates.iloc[-1]['Rate']
 
 def create_app():
     app = Flask(__name__)
@@ -22,8 +27,24 @@ app = create_app()
 @app.route('/')
 def index():
     #return jsonify([p.getInvest() for p in portfolios.values()])
+    overall = {
+        'value': 0.0,
+        'position':0.0,
+        'free': 0.0,
+    }
     invests = [p.getInvest() for p in portfolios.values()]
-    return render_template('index.html', invests=invests)
+    for item in invests:
+        value = item['value']
+        position = item['position']
+        if item['currency'] == 'HKD':
+            value = item['value'] * h2c_rate
+            position = item['position'] * h2c_rate
+
+        overall['value'] += value
+        overall['position'] += position
+
+    overall['free']= overall['value'] - overall['position']
+    return render_template('index.html', overall=overall)
 
 
 @app.route('/stocks/')

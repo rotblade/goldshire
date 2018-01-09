@@ -36,28 +36,18 @@
       <div class="container">
 
         <div class="row">
-          {% for invest in invests %}
           <div class="col-sm">
-            <h6>{{ invest.name }} - {{ invest.currency }}</h6>
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                初始投入：
-                <span class="badge badge-primary badge-pill">&yen; {{
-                  "{:,.2f}".format(invest.fund) }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                当前资产:
-                <span class="badge badge-primary badge-pill">&yen; {{
-                  "{:,.2f}".format(invest.value) }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                持仓市值：
-                <span class="badge badge-primary badge-pill">&yen; {{
-                  "{:,.2f}".format(invest.position) }}</span>
-              </li>
-            </ul>
+            <h3>整体业绩 - 以RMB计</h3>
+            <hr class="my-4"></hr>
+            <dl class="row">
+              <dt class="col-sm-3">当前资产:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(overall.value) }}</dd>
+              <dt class="col-sm-3">持仓市值:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(overall.position) }}</dd>
+              <dt class="col-sm-3">可用:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(overall.free) }}</dd>
+            </dl>
           </div>
-          {% endfor %}
         </div>
 
         <div class="row">
