@@ -1,12 +1,12 @@
 import unittest
 import datetime
-from goldshire.config import csvpath, stocks
+from goldshire.config import stocks
 from goldshire.investment import Stocks
 
 
 class TestStocks(unittest.TestCase):
     def setUp(self):
-        self.before = datetime.date(2017, 2, 1)
+        self.before = datetime.date(2016, 1, 1)
         self.today = datetime.date.today()
         self.pfl = {}
         for k, v in stocks.items():
@@ -18,8 +18,14 @@ class TestStocks(unittest.TestCase):
             self.assertTrue(len(v._dividends) > 0)
 
     def test_preCal(self):
-        df = self.pfl['hkd']._preCal(self.before)
         fields = ['Name', 'Qty', 'B_Cost']
+        df = self.pfl['hkd']._preCal(self.before)
+        for field in fields:
+            self.assertTrue(field in df.columns)
+        df = self.pfl['cny']._preCal(self.before)
+        for field in fields:
+            self.assertTrue(field in df.columns)
+        df = self.pfl['usd']._preCal(self.before)
         for field in fields:
             self.assertTrue(field in df.columns)
 
@@ -38,7 +44,7 @@ class TestStocks(unittest.TestCase):
 
     def test_getPrice(self):
         symbols = ['000895', '600585', '600660']
-        prices = Stocks.getPrice(csvpath, symbols, self.before)
+        prices = Stocks.getPrice(symbols, self.before)
         self.assertEqual(prices.iloc[0], 21.40)
         self.assertEqual(prices.iloc[1], 19.93)
         self.assertEqual(prices.iloc[2], 18.80)

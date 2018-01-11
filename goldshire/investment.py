@@ -105,7 +105,7 @@ class Stocks:
 
 
     @staticmethod
-    def getPrice(csvpath, symbols, day=datetime.date.today()):
+    def getPrice(symbols, day=datetime.date.today()):
         prices = []
         for symbol in symbols:
             df = pd.read_csv(Path.cwd()/'csv'/'historic'/f'{symbol}.csv',
