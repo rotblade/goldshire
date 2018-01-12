@@ -2,7 +2,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from pathlib import Path
-#from .config import csvpath
+from config import Config
 
 
 class Invest:
@@ -11,14 +11,14 @@ class Invest:
     '''
 
     def __init__(self, name, currency, fund, stocks, start=datetime.date(2016, 1, 1)):
-        self._path = Path.cwd()
+        self._path = Config.CSV_DIR
         self.name = name
         self.currency = currency.upper()
         self.start = start
-        self.u2h_rates = pd.read_csv(self._path/'csv'/'rate-usd2hkd.csv',
+        self.u2h_rates = pd.read_csv(Config.U2H_RATE_FILE,
                                      parse_dates=['Date'], index_col=0)
         self._stocks = stocks
-        fund_file = self._path/'csv'/fund
+        fund_file = self._path/fund
         fund_df = pd.read_csv(fund_file, parse_dates=['Date'], index_col=0)
         fund_df['BaseAmount'] = fund_df['Amount'] * fund_df['ExchangeRate']
         self._fund = fund_df
@@ -80,7 +80,7 @@ class Stocks:
         self._path = Path.cwd()
         self.currency = currency.upper()
 
-        trade_file = self._path/'csv'/records[0]
+        trade_file = self._path/records[0]
         trades = pd.read_csv(trade_file, parse_dates=['Date'],
                              dtype={'Symbol': str, 'Qty': np.int64})
         trades.set_index('Symbol', inplace=True)
@@ -91,7 +91,7 @@ class Stocks:
             trades['Transaction'] == 'BUY', proceed + fee, proceed - fee)
         self._trades = trades
 
-        dividend_file = self._path/'csv'/records[1]
+        dividend_file = self._path/records[1]
         dividends = pd.read_csv(dividend_file, parse_dates=['Date'],
                                 dtype={'Symbol': str, 'Qty': np.int64})
         dividends.set_index('Symbol', inplace=True)
@@ -108,7 +108,7 @@ class Stocks:
     def getPrice(symbols, day=datetime.date.today()):
         prices = []
         for symbol in symbols:
-            df = pd.read_csv(Path.cwd()/'csv'/'historic'/f'{symbol}.csv',
+            df = pd.read_csv(Config.HISTORIC_DIR/f'{symbol}.csv',
                              names=['date', 'price'], parse_dates=['date'],
                              index_col=0)
             if day not in df.index:
@@ -155,7 +155,7 @@ class Stocks:
 
         # Calcuate unrealized profit/loss
         hold = df.loc[lambda df: df.Qty > 0]
-        df['Last'] = Stocks.getPrice('csv/', hold.index, end)
+        df['Last'] = Stocks.getPrice(hold.index, end)
         df['UR_PnL'] = df['Qty'] * (df['Last'] - df['B_Cost'])
         df['UR_PnL'].fillna(0.0, inplace=True)
 
