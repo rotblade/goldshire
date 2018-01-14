@@ -55,7 +55,7 @@ class Invest:
                     else:
                         raise KeyError(f'No rate found for {s.currency} on {end}')
 
-                ex_rate = self.u2h_rates.loc[end].values[0]
+                ex_rate = self.u2h_rates.loc[end]['Rate']
                 position = position * ex_rate
                 earning = earning * ex_rate
                 commission = commission * ex_rate
@@ -77,7 +77,7 @@ class Stocks:
     '''
 
     def __init__(self, currency, records):
-        self._path = Path.cwd()
+        self._path = Config.CSV_DIR
         self.currency = currency.upper()
 
         trade_file = self._path/records[0]

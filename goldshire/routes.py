@@ -1,4 +1,5 @@
-from goldshire import app
+from flask import jsonify, render_template
+from goldshire import app, portfolios, h2c_rate
 
 
 @app.route('/')
