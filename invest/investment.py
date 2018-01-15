@@ -3,6 +3,7 @@
 
 import datetime
 import pandas as pd
+import numpy as np
 from pandas.tseries.offsets import *
 from config import Config
 
@@ -15,7 +16,8 @@ class Investment:
     #_today = datetime.date.today()
     #_baseday = datetime.date(_today.year, 1, 1) - DateOffset()
 
-    def __init__(self, currency, recfile, pfls, start=datetime.date(2015, 12, 31)):
+    def __init__(self, currency, recfile, pfls,
+                 start=datetime.date(2015, 12, 31)):
         """
         :param name: `String` object, a descriptive name.
         :param currency: `String` object, currency of settlement.
@@ -39,10 +41,6 @@ class Investment:
 
     def __repr__(self):
         return (f'{self.__class__.__name__} - {self.currency}: {self.initial}')
-
-
-    def getYearlyData(self):
-        pass
 
 
     def getData(self, end=datetime.date.today()):
@@ -93,6 +91,30 @@ class Investment:
             data['Tax'] += tax
 
         data['Value'] = data['Fund'] + data['Earning']
-        
+
         data_df = pd.DataFrame(data=data, index=[end])
         return data_df.round(2)
+
+
+    def getPeriodData(self, end=datetime.date.today(), freq='Y'):
+        """
+        Generate periodic investment data according to frequence.
+
+        :param end: `Date` object, the end date for the period.
+        :param freq: `String` object, the frequence of the period. Available
+            frequences.
+            'Y': Yearly(default)
+            'M': Monthly
+            'D': Daily
+        """
+        period_dates = {
+            'Y': pd.date_range(start=self.start, end=end, freq='Y')
+            'M': pd.date_range(start=self.start, end=end, freq='M')
+            'D': pd.date_range(start=self.start, end=end, freq='D')[:-1]
+        }
+
+        data = []
+        for day in period_dates[freq]:
+            data.append(self.getData(end=day))
+
+        data_df = pd.DataFrame(data=data, index=period_dates[freq])
