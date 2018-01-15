@@ -21,9 +21,8 @@ class Portfolio:
             records[1]: csv filename to store dividend records.
         """
         self.currency = currency.upper()
-        self._path = Config.CSV_DIR
 
-        trade_file = self._path/records[0]
+        trade_file = Config.CSV_DIR/records[0]
         trades = pd.read_csv(trade_file, parse_dates=['Date'],
                              dtype={'Symbol': str, 'Qty': np.int64})
         trades.set_index('Symbol', inplace=True)
@@ -34,7 +33,7 @@ class Portfolio:
         )
         self._trades = trades
 
-        dividend_file = self._path/records[1]
+        dividend_file = Config.CSV_DIR/records[1]
         dividends = pd.read_csv(dividend_file, parse_dates=['Date'],
                                 dtype={'Symbol': str, 'Qty': np.int64})
         dividends.set_index('Symbol', inplace=True)
@@ -98,7 +97,7 @@ class Portfolio:
         symbols = self.getHolding(end).index
 
         for symbol in symbols:
-            df = pd.read_csv(self._path/Config.HISTORIC_DIR/f'{symbol}.csv',
+            df = pd.read_csv(Config.HISTORIC_DIR/f'{symbol}.csv',
                              names=['Date', 'Close'], parse_dates=['Date'],
                              index_col=0)
             day = end

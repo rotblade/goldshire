@@ -26,13 +26,12 @@ class Investment:
         :param start: `Date` ojbect, the base date to calculate investment
             performance.
         """
-        self._path = Config.CSV_DIR
         self.currency = currency.upper()
         self.start = start
-        self.u2h_rates = pd.read_csv(self._path/Config.U2H_RATE_FILE,
+        self.u2h_rates = pd.read_csv(Config.U2H_RATE_FILE,
                                      parse_dates=['Date'], index_col=0)
         self.portfolios = pfls
-        fund_file = self._path/recfile
+        fund_file = Config.CSV_DIR/recfile
         fund_df = pd.read_csv(fund_file, parse_dates=['Date'], index_col=0)
         fund_df['BaseAmount'] = fund_df['Amount'] * fund_df['ExchangeRate']
         self._fund = fund_df
@@ -108,13 +107,13 @@ class Investment:
             'D': Daily
         """
         period_dates = {
-            'Y': pd.date_range(start=self.start, end=end, freq='Y')
-            'M': pd.date_range(start=self.start, end=end, freq='M')
-            'D': pd.date_range(start=self.start, end=end, freq='D')[:-1]
+            'Y': pd.date_range(start=self.start, end=end, freq='Y'),
+            'M': pd.date_range(start=self.start, end=end, freq='M'),
+            'D': pd.date_range(start=self.start, end=end, freq='D')[:-1],
         }
 
-        data = []
-        for day in period_dates[freq]:
-            data.append(self.getData(end=day))
+        data_df = self.getData(end=period_dates[freq][0])
+        for day in period_dates[freq][1:]:
+            data_df = data_df.append(self.getData(end=day))
 
-        data_df = pd.DataFrame(data=data, index=period_dates[freq])
+        return data_df
