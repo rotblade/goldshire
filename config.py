@@ -9,6 +9,7 @@ basedir = Path(__file__).absolute().parent
 class Config:
     TENCENT_QUOTE_URL = 'http://qt.gtimg.cn/q=s_'
     ALPHAVANTAGE_URL = 'https://www.alphavantage.co/query'
+    ALPHAVANTAGE_KEY = '24JJSPF9FOR8DS08'
     CSV_DIR = basedir/'goldshire'/'csv'
     HISTORIC_DIR = CSV_DIR/'historic'
     H2C_RATE_FILE = CSV_DIR/'rate-hkd2cny.csv'
