@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 import numpy as np
 import requests
@@ -39,6 +40,15 @@ def quotes2csvs(symbols, datestring, csvpath):
         with open(join(csvpath, k+'.csv'), 'a', newline='') as f:
             writer = csv.writer(f, lineterminator="\n")
             writer.writerow([datestring, v])
+
+
+def record2file(filepath, record, day=datetime.date.today()):
+    df = pd.read_csv(filepath, names=['Date', 'Close'],
+                     parse_dates=['Date'], index_col=0)
+    pd_day = pd.Timestamp(day)
+    if pd_day > df.index[-1]:
+        df.loc[pd_day] = record
+        df.to_csv(filepath)
 
 
 def get_lastprice(symbols, csvpath):
