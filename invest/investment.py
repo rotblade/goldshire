@@ -50,7 +50,7 @@ class Investment:
         :param end: `Date` object, the cut-off date to calculate performance.
         """
         data = {
-            'Currency': self.currency,
+            #'Currency': self.currency,
             'Fund': self._fund.loc[:end]['BaseAmount'].sum(),
             'Earning': 0.0,
             'Value': 0.0,

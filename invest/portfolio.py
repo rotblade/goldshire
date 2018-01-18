@@ -95,6 +95,8 @@ class Portfolio:
         """
         prices = []
         symbols = self.getHolding(end).index
+        rates = pd.read_csv(Config.H2C_RATE_FILE, parse_dates=['Date'],
+                            index_col=0)
 
         for symbol in symbols:
             df = pd.read_csv(Config.HISTORIC_DIR/f'{symbol}.csv',
@@ -108,7 +110,12 @@ class Portfolio:
                 else:
                     raise KeyError(f'No price found for {symbol} on {day}')
 
-            prices.append(df.loc[day, 'Close'])
+            close = df.loc[day, 'Close']
+            # 如果境内人民币组合里有港股通股票，需要将其报价乘以汇率
+            if self.currency == 'CNY':
+                if len(symbol) == 5:
+                    close = df.loc[day, 'Close'] * rates.loc[end, 'Rate']
+            prices.append(close)
 
         return pd.Series(prices, index=symbols)
 

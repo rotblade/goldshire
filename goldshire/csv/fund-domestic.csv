@@ -3,8 +3,6 @@ Date,Transaction,Amount,Currency,ExchangeRate,Memo
 2016-01-16,Deposit,100000.0,CNY,1,转入10万
 2016-01-25,Deposit,12962.0,CNY,1,2015年末打新分红
 2016-05-31,Withdraw,-320000.0,CNY,1,买房款
-2016-12-26,Withdraw,-30000.0,CNY,1,临时取出
-2017-01-16,Withdraw,30000.0,CNY,1,放回临时取出款
 2017-06-26,Withdraw,-80000.0,CNY,1,买车款
 2017-08-03,Deposit,50000.0,CNY,1,招行e招贷部分资金
 2017-08-08,Withdraw,-20000.0,CNY,1,购买iMac
