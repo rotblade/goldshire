@@ -3,6 +3,7 @@ import numpy as np
 import requests
 import csv
 from os.path import join
+from config import Config
 
 def csv2df(csvs, csvpath):
     '''
@@ -48,18 +49,19 @@ def get_lastprice(symbols, csvpath):
 
     return pd.Series(prices, index=symbols)
 
-def get_tx_quotes(symbols, market='cny'):
-    tx_api = 'http://qt.gtimg.cn/q=s_'
-    if market=='cny':
-        # codes = symbols.apply(lambda s: 'sz'+s if s[:2]=='00' else 'sh'+s)
-        codes = ['sz'+s if s[:2]=='00' else 'sh'+s for s in symbols]
-    else:
-        if market=='hkd':
-            # codes = 'hk' + symbols
-            codes = ['hk'+s for s in symbols]
+def get_tx_quotes(symbols):
+    tx_api = Config.TENCENT_QUOTE_URL
+    codes = []
+    for s in symbols:
+        if s.isdigit():
+            if len(s) == 6:
+                codes.append('sz'+s if s[:2]=='00' else 'sh'+s)
+            else:
+                # HKD market
+                codes.append('hk'+s)
         else:
-            # codes = 'us' + symbols
-            codes = ['us'+s for s in symbols]
+            # USD market
+            codes.append('us'+s)
 
     # stocks_url = tx_api + codes
     urls = [tx_api+s for s in codes]
