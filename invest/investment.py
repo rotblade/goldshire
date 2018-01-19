@@ -112,8 +112,11 @@ class Investment:
             'D': pd.date_range(start=self.start, end=end, freq='D')[:-1],
         }
 
-        data_df = self.getData(end=period_dates[freq][0])
-        for day in period_dates[freq][1:]:
-            data_df = data_df.append(self.getData(end=day))
+        records = []
+        for day in period_dates[freq]:
+            records.append(self.getData(end=day))
+        # data_df = self.getData(end=period_dates[freq][0])
+        # for day in period_dates[freq][1:]:
+        #     data_df = data_df.append(self.getData(end=day))
 
-        return data_df
+        return pd.concat(records)

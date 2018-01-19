@@ -60,7 +60,7 @@ def get_lastprice(symbols, csvpath):
     return pd.Series(prices, index=symbols)
 
 def get_tx_quotes(symbols):
-    tx_api = Config.TENCENT_QUOTE_URL
+    tx_api = Config.TENCENT_URL
     codes = []
     for s in symbols:
         if s.isdigit():
@@ -84,15 +84,20 @@ def get_tx_quotes(symbols):
     return pd.DataFrame(lasts, columns=cols, index=symbols)
 
 
-def get_forexrate(s_currency, t_currency):
-    av_api = 'https://www.alphavantage.co/query'
-    params = {
-        'function': 'CURRENCY_EXCHANGE_RATE',
-        'from_currency': s_currency,
-        'to_currency': t_currency,
-        'apikey': '24JJSPF9FOR8DS08'
-    }
+def get_forexrate(api_url, params):
+    r_json = requests.get(api_url, params=params).json()
+    if r_json['success']:
+        return r_json['quotes']
+    else:
+        return r_json['error']['coce']
 
-    r = requests.get(av_api, params=params)
-    rate = r.json()['Realtime Currency Exchange Rate']['5. Exchange Rate']
-    return float(rate)
+
+def getValidDay(df, day):
+    if day in df.index:
+        return day
+    else:
+        day_stamp = pd.Timestamp(day)
+        if day_stamp > df.index[0]:
+            return df.loc[:day].index[-1]
+        else:
+            raise KeyError(f'No price found for {symbol} on {day}')

@@ -5,6 +5,7 @@ import datetime
 import pandas as pd
 import numpy as np
 from config import Config
+from helper import getValidDay
 
 
 class Portfolio:
@@ -93,31 +94,32 @@ class Portfolio:
 
         :param day: `Date` object, the day to query price.
         """
-        prices = []
+        data = []
         symbols = self.getHolding(end).index
         rates = pd.read_csv(Config.H2C_RATE_FILE, parse_dates=['Date'],
                             index_col=0)
 
         for symbol in symbols:
-            df = pd.read_csv(Config.HISTORIC_DIR/f'{symbol}.csv',
-                             names=['Date', 'Close'], parse_dates=['Date'],
-                             index_col=0)
-            day = end
-            if day not in df.index:
-                day_stamp = pd.Timestamp(day)
-                if day_stamp > df.index[0]:
-                    day = df.loc[:day].index[-1]
-                else:
-                    raise KeyError(f'No price found for {symbol} on {day}')
-
-            close = df.loc[day, 'Close']
+            prices = pd.read_csv(Config.HISTORIC_DIR/f'{symbol}.csv',
+                                 names=['Date', 'Close'], parse_dates=['Date'],
+                                 index_col=0)
+            #day = end
+            #if day not in df.index:
+            #    day_stamp = pd.Timestamp(day)
+            #    if day_stamp > df.index[0]:
+            #        day = df.loc[:day].index[-1]
+            #    else:
+            #        raise KeyError(f'No price found for {symbol} on {day}')
+            price_day = getValidDay(prices, end)
+            close = prices.loc[price_day, 'Close']
             # 如果境内人民币组合里有港股通股票，需要将其报价乘以汇率
             if self.currency == 'CNY':
                 if len(symbol) == 5:
-                    close = df.loc[day, 'Close'] * rates.loc[end, 'Rate']
-            prices.append(close)
+                    rate_day = getValidDay(rates, end)
+                    close = close * rates.loc[rate_day, 'Rate']
+            data.append(close)
 
-        return pd.Series(prices, index=symbols)
+        return pd.Series(data, index=symbols)
 
 
     def _calPnL(self, pre_df, end):
