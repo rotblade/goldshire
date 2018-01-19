@@ -101,8 +101,7 @@ class Portfolio:
 
         for symbol in symbols:
             prices = pd.read_csv(Config.HISTORIC_DIR/f'{symbol}.csv',
-                                 names=['Date', 'Close'], parse_dates=['Date'],
-                                 index_col=0)
+                                 parse_dates=['Date'], index_col=0)
             #day = end
             #if day not in df.index:
             #    day_stamp = pd.Timestamp(day)
