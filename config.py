@@ -23,6 +23,12 @@ class Config:
     HISTORIC_DIR = CSV_DIR/'historic'
     H2C_RATE_FILE = CSV_DIR/'rate-hkd2cny.csv'
     U2H_RATE_FILE = CSV_DIR/'rate-usd2hkd.csv'
+    DAILY_CNY_FILE = CSV_DIR/'dailyfreq-cny.csv'
+    DAILY_HKD_FILE = CSV_DIR/'dailyfreq-hkd.csv'
+    MONTHLY_CNY_FILE = CSV_DIR/'monthlyfreq-cny.csv'
+    MONTHLY_HKD_FILE = CSV_DIR/'monthlyfreq-hkd.csv'
+    YEARLY_CNY_FILE = CSV_DIR/'yearlyfreq-cny.csv'
+    YEARLY_HKD_FILE = CSV_DIR/'yearlyfreq-hkd.csv'
     STOCKS = {
         'cny': ['trades-cny.csv', 'dividends-cny.csv'],
         'hkd': ['trades-hkd.csv', 'dividends-hkd.csv'],
