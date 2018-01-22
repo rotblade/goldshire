@@ -5,7 +5,6 @@ import datetime
 import pandas as pd
 import numpy as np
 from config import Config
-from helper import getValidDay
 
 
 class Portfolio:
@@ -46,6 +45,18 @@ class Portfolio:
     def __repr__(self):
         return (f'{self.__class__.__name__}-{self.currency}: \
                 {len(self._trades)} trades & {len(self._dividends)} dividends')
+
+
+    @staticmethod
+    def getValidDay(df, day):
+        if day in df.index:
+            return day
+        else:
+            day_stamp = pd.Timestamp(day)
+            if day_stamp > df.index[0]:
+                return df.loc[:day].index[-1]
+            else:
+                raise KeyError(f'No item found on {day}')
 
 
     def _preCal(self, end):
@@ -102,19 +113,12 @@ class Portfolio:
         for symbol in symbols:
             prices = pd.read_csv(Config.HISTORIC_DIR/f'{symbol}.csv',
                                  parse_dates=['Date'], index_col=0)
-            #day = end
-            #if day not in df.index:
-            #    day_stamp = pd.Timestamp(day)
-            #    if day_stamp > df.index[0]:
-            #        day = df.loc[:day].index[-1]
-            #    else:
-            #        raise KeyError(f'No price found for {symbol} on {day}')
-            price_day = getValidDay(prices, end)
+            price_day = Portfolio.getValidDay(prices, end)
             close = prices.loc[price_day, 'Close']
             # 如果境内人民币组合里有港股通股票，需要将其报价乘以汇率
             if self.currency == 'CNY':
                 if len(symbol) == 5:
-                    rate_day = getValidDay(rates, end)
+                    rate_day = Portfolio.getValidDay(rates, end)
                     close = close * rates.loc[rate_day, 'Rate']
             data.append(close)
 
@@ -185,11 +189,11 @@ class Portfolio:
         df['Return'] = df['Earning'] / df['B_Cost']
 
         # Calculate market value for holding stocks.
-        df['Value'] = df['Last'] * df['Qty']
+        df['Market'] = df['Last'] * df['Qty']
 
         columns = [
             'Name', 'Qty', 'B_Cost', 'Commission', 'Tax', 'Last', 'R_PnL',
-            'UR_PnL', 'Dividend', 'Value', 'Earning', 'Return',
+            'UR_PnL', 'Dividend', 'Market', 'Earning', 'Return',
         ]
 
         return df[columns].round(3)

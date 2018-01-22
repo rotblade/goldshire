@@ -1,28 +1,21 @@
+import datetime
 from flask import jsonify, render_template
-from goldshire import app, portfolios, h2c_rate
+from app import app, invests, HKD
 
 
 @app.route('/')
 @app.route('/index')
 def index():
-    overall = {
-        'value': 0.0,
-        'position':0.0,
-        'free': 0.0,
-    }
-    invests = [p.getInvest() for p in portfolios.values()]
-    for item in invests:
-        value = item['value']
-        position = item['position']
-        if item['currency'] == 'HKD':
-            value = item['value'] * h2c_rate
-            position = item['position'] * h2c_rate
+    day = datetime.date.today()
+    df_cny = invests['cny'].getData(day)
+    df_hkd = invests['hkd'].getData(day)
+    df_all= df_cny + (df_hkd*HKD.get_rate2cny(day)).round(2)
+    rec_cny = df_cny.to_dict(orient='records')[0]
+    rec_hkd = df_hkd.to_dict(orient='records')[0]
+    rec_all = df_all.to_dict(orient='records')[0]
 
-        overall['value'] += value
-        overall['position'] += position
-
-    overall['free']= overall['value'] - overall['position']
-    return render_template('index.html', overall=overall)
+    return render_template('index.html', data_cny=rec_cny, data_hkd=rec_hkd,
+                            data_all=rec_all)
 
 
 @app.route('/stocks/')

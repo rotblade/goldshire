@@ -37,15 +37,63 @@
 
         <div class="row">
           <div class="col-sm">
-            <h3>整体业绩 - 以RMB计</h3>
+            <h3>整体业绩 - 以CNY计</h3>
             <hr class="my-4"></hr>
             <dl class="row">
-              <dt class="col-sm-3">当前资产:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(overall.value) }}</dd>
-              <dt class="col-sm-3">持仓市值:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(overall.position) }}</dd>
+              <dt class="col-sm-3">资产:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_all.Value) }}</dd>
+              <dt class="col-sm-3">持仓:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_all.Market) }}</dd>
               <dt class="col-sm-3">可用:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(overall.free) }}</dd>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_all.Value-data_all.Market) }}</dd>
+              <dt class="col-sm-3">总投入:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_all.Fund) }}</dd>
+              <dt class="col-sm-3">总盈亏:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_all.Earning) }}</dd>
+              <dt class="col-sm-3">总佣金:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_all.Commission) }}</dd>
+              <dt class="col-sm-3">总税金:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_all.Tax) }}</dd>
+            </dl>
+          </div>
+          <div class="col-sm">
+            <h3>境内投资 - 以CNY计</h3>
+            <hr class="my-4"></hr>
+            <dl class="row">
+              <dt class="col-sm-3">资产:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_cny.Value) }}</dd>
+              <dt class="col-sm-3">持仓:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_cny.Market) }}</dd>
+              <dt class="col-sm-3">可用:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_cny.Value-data_cny.Market) }}</dd>
+              <dt class="col-sm-3">总投入:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_cny.Fund) }}</dd>
+              <dt class="col-sm-3">总盈亏:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_cny.Earning) }}</dd>
+              <dt class="col-sm-3">总佣金:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_cny.Commission) }}</dd>
+              <dt class="col-sm-3">总税金:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_cny.Tax) }}</dd>
+            </dl>
+          </div>
+          <div class="col-sm">
+            <h3>境外投资 - 以HKD计</h3>
+            <hr class="my-4"></hr>
+            <dl class="row">
+              <dt class="col-sm-3">资产:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Value) }}</dd>
+              <dt class="col-sm-3">持仓:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Market) }}</dd>
+              <dt class="col-sm-3">可用:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Value-data_hkd.Market) }}</dd>
+              <dt class="col-sm-3">总投入:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Fund) }}</dd>
+              <dt class="col-sm-3">总盈亏:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Earning) }}</dd>
+              <dt class="col-sm-3">总佣金:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Commission) }}</dd>
+              <dt class="col-sm-3">总税金:</dt>
+              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Tax) }}</dd>
             </dl>
           </div>
         </div>
