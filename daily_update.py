@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 from config import Config
-from invest.portfolio import Portfolio
+from invest import Portfolio
 from helper import get_tx_quotes, get_forexrate, record2file
 
 

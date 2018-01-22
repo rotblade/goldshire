@@ -37,7 +37,7 @@
 
         <div class="row">
           <div class="col-sm">
-            <h3>整体业绩 - 以CNY计</h3>
+            <h4>整体业绩 - 以CNY计</h4>
             <hr class="my-4"></hr>
             <dl class="row">
               <dt class="col-sm-3">资产:</dt>
@@ -55,9 +55,13 @@
               <dt class="col-sm-3">总税金:</dt>
               <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_all.Tax) }}</dd>
             </dl>
+            <hr class="my-4"></hr>
+            <div class="alert alert-secondary" role="alert">
+              以2015年12月31日投资起点。
+            </div>
           </div>
           <div class="col-sm">
-            <h3>境内投资 - 以CNY计</h3>
+            <h4>境内投资 - 以CNY计</h4>
             <hr class="my-4"></hr>
             <dl class="row">
               <dt class="col-sm-3">资产:</dt>
@@ -75,26 +79,34 @@
               <dt class="col-sm-3">总税金:</dt>
               <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_cny.Tax) }}</dd>
             </dl>
+            <hr class="my-4"></hr>
+            <div class="alert alert-secondary" role="alert">
+              最早数据是2015年12月31日。
+            </div>
           </div>
           <div class="col-sm">
-            <h3>境外投资 - 以HKD计</h3>
+            <h4>境外投资 - 以HKD计</h4>
             <hr class="my-4"></hr>
             <dl class="row">
               <dt class="col-sm-3">资产:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Value) }}</dd>
+              <dd class="col-sm-9">HK$ {{ "{:,.2f}".format(data_hkd.Value) }}</dd>
               <dt class="col-sm-3">持仓:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Market) }}</dd>
+              <dd class="col-sm-9">HK$ {{ "{:,.2f}".format(data_hkd.Market) }}</dd>
               <dt class="col-sm-3">可用:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Value-data_hkd.Market) }}</dd>
+              <dd class="col-sm-9">HK$ {{ "{:,.2f}".format(data_hkd.Value-data_hkd.Market) }}</dd>
               <dt class="col-sm-3">总投入:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Fund) }}</dd>
+              <dd class="col-sm-9">HK$ {{ "{:,.2f}".format(data_hkd.Fund) }}</dd>
               <dt class="col-sm-3">总盈亏:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Earning) }}</dd>
+              <dd class="col-sm-9">HK$ {{ "{:,.2f}".format(data_hkd.Earning) }}</dd>
               <dt class="col-sm-3">总佣金:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Commission) }}</dd>
+              <dd class="col-sm-9">HK$ {{ "{:,.2f}".format(data_hkd.Commission) }}</dd>
               <dt class="col-sm-3">总税金:</dt>
-              <dd class="col-sm-9">&yen; {{ "{:,.2f}".format(data_hkd.Tax) }}</dd>
+              <dd class="col-sm-9">HK$ {{ "{:,.2f}".format(data_hkd.Tax) }}</dd>
             </dl>
+            <hr class="my-4"></hr>
+            <div class="alert alert-secondary" role="alert">
+              最早数据是2012年10月8日。
+            </div>
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 import datetime
 import pandas as pd
 from config import Config
-from invest.portfolio import Portfolio
+from invest import Portfolio, Investment
 from helper import record2file
 
 
