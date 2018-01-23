@@ -28,7 +28,7 @@
             <td>{{ row['Last'] }}</td>
             <td>{{ row['Market'] }}</td>
             <td>{{ row['Earning'] }}</td>
-            <td>{{ row['Return'] }}</td>
+            <td>{{ "{:.1f}%".format(row['Return']*100) }}</td>
           </tr>
           {% endif %}
           {% endfor %}
@@ -63,7 +63,7 @@
             <td>{{ row['Last'] }}</td>
             <td>{{ row['Market'] }}</td>
             <td>{{ row['Earning'] }}</td>
-            <td>{{ row['Return'] }}</td>
+            <td>{{ "{:.1f}%".format(row['Return']*100) }}</td>
           </tr>
           {% endif %}
           {% endfor %}
