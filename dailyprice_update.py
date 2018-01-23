@@ -18,13 +18,3 @@ if __name__ == '__main__':
             for i, row in quotes.iterrows():
                 record2file(Config.HISTORIC_DIR/f'{i}.csv',
                             {'Close':row['Last']})
-
-    # Update daily exchange rate for USD2HKD and HKD2CNY
-    yesterday = today - timedelta(1)
-    api_url = Config.LAYER_HISTURL
-    params = {'access_key': Config.LAYER_KEY, 'date': yesterday}
-    forex_rates = get_forexrate(api_url, params)
-    usd2hkd = forex_rates['USDHKD']
-    record2file(Config.U2H_RATE_FILE, {'Rate': usd2hkd}, day=yesterday)
-    hkd2cny = round(forex_rates['USDCNY']/forex_rates['USDHKD'], 6)
-    record2file(Config.H2C_RATE_FILE, {'Rate': hkd2cny}, day=yesterday)
