@@ -1,42 +1,78 @@
-{% extends "bootstrap/base.html" %}
-{% block title %}Summary of stocks{% endblock %}
-{% block navbar %}
-<div class="navbar navbar-fixed-top">
-    <!-- ... -->
-</div>
-{% endblock %}
-{% block content %}
+
+{% extends "base.html" %}
+
+{% block container %}
 <div class="container">
-  <div class="page-header">
-      <h3>Traded stocks</h3>
-  </div>
+
   <div class="row">
-    <div class="col-md-8">
-      <table id="h-stocks" class="table">
+    <div class="col-sm-8">
+      <table class="table table-sm">
         <thead>
           <tr>
-            <th></th>
-            {% for col in data.columns.tolist() %}
-              <th>{{ col }}</th>
-            {% endfor %}
+            <th>A股市场</th>
+            <td>{{ headers[1] }}</td>
+            <td>{{ headers[2] }}</td>
+            <td>{{ headers[3] }}</td>
+            <td>{{ headers[4] }}(CNY)</td>
+            <td>{{ headers[8] }}</td>
+            <td>{{ headers[9] }}</td>
           </tr>
         </thead>
         <tbody>
-          {% for index, row in data.iterrows() %}
-            <tr>
-              <th><a href="{{ url_for('get_stock', symbol=index) }}">{{ index }}</a></th>
-              {% for item in row %}
-                <td>{{ item }}</td>
-              {% endfor %}
-            </tr>
+          {% for symbol, row in stocks['cny'].items() %}
+          {% if row['Qty']>0 %}
+          <tr>
+            <th><a href="{{ url_for('get_stock', symbol=symbol) }}">{{ symbol }}</a></th>
+            <td>{{ row['Name'] }}</td>
+            <td>{{ row['Qty'] }}</td>
+            <td>{{ row['Last'] }}</td>
+            <td>{{ row['Market'] }}</td>
+            <td>{{ row['Earning'] }}</td>
+            <td>{{ row['Return'] }}</td>
+          </tr>
+          {% endif %}
           {% endfor %}
         </tbody>
       </table>
     </div>
-    <div class="col-md-4">
-      <div id="app">
-      </div>
+    <div class="col-sm-4">
     </div>
   </div>
-</div>
+
+  <div class="row">
+    <div class="col-sm-8">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>港股市场</th>
+            <td>{{ headers[1] }}</td>
+            <td>{{ headers[2] }}</td>
+            <td>{{ headers[3] }}</td>
+            <td>{{ headers[4] }}(HKD)</td>
+            <td>{{ headers[8] }}</td>
+            <td>{{ headers[9] }}</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for symbol, row in stocks['hkd'].items() %}
+          {% if row['Qty']>0 %}
+          <tr>
+            <th><a href="{{ url_for('get_stock', symbol=symbol) }}">{{ symbol }}</a></th>
+            <td>{{ row['Name'] }}</td>
+            <td>{{ row['Qty'] }}</td>
+            <td>{{ row['Last'] }}</td>
+            <td>{{ row['Market'] }}</td>
+            <td>{{ row['Earning'] }}</td>
+            <td>{{ row['Return'] }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-4">
+    </div>
+  </div>
+
+</div> <!-- /container -->
 {% endblock %}
