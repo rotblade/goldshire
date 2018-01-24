@@ -68,3 +68,7 @@ def get_stock(symbol):
     stock = invest[currency].get_stock(symbol)
 
     return jsonify(stock.to_dict())
+
+@app.route('/vue/')
+def study_vue():
+    return render_template('vue-study.html')
