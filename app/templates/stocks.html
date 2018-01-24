@@ -34,13 +34,6 @@
           {% endfor %}
         </tbody>
       </table>
-    </div>
-    <div class="col-sm-4">
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm-8">
       <table class="table table-sm">
         <thead>
           <tr>
@@ -69,6 +62,42 @@
           {% endfor %}
         </tbody>
       </table>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>美股市场</th>
+            <td>{{ headers[1] }}</td>
+            <td>{{ headers[2] }}</td>
+            <td>{{ headers[3] }}</td>
+            <td>{{ headers[4] }}(HKD)</td>
+            <td>{{ headers[8] }}</td>
+            <td>{{ headers[9] }}</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for symbol, row in stocks['usd'].items() %}
+          {% if row['Qty']>0 %}
+          <tr>
+            <th><a href="{{ url_for('get_stock', symbol=symbol) }}">{{ symbol }}</a></th>
+            <td>{{ row['Name'] }}</td>
+            <td>{{ row['Qty'] }}</td>
+            <td>{{ row['Last'] }}</td>
+            <td>{{ row['Market'] }}</td>
+            <td>{{ row['Earning'] }}</td>
+            <td>{{ "{:.1f}%".format(row['Return']*100) }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-4">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-8">
+
     </div>
     <div class="col-sm-4">
     </div>

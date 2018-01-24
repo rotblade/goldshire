@@ -1,0 +1,24 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Vue Test</title>
+    <meta charset="utf-8">
+  </head>
+
+  <body>
+    <div id="app"><!--Start of Vue app-->
+      <p v-if="seen">现在你看到我了</p>
+    </div><!--End of Vue app-->
+
+    <!-- Vue & Axios library
+    ================================================ -->
+    <!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!-- Vue components and instance -->
+    <script type=text/javascript src="{{ url_for('static',
+      filename='js/vue-study.js') }}"></script>
+  </body>
+</html>
