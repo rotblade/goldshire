@@ -1,4 +1,4 @@
-import datetime
+from datetime import date, timedelta
 import pandas as pd
 from config import Config
 from invest import Portfolio, Investment
@@ -7,7 +7,7 @@ from helper import get_forexrate, record2file
 
 if __name__ == '__main__':
     # Update daily exchange rate for USD2HKD and HKD2CNY
-    yesterday = datetime.date.today() - timedelta(1)
+    yesterday = date.today() - timedelta(1)
     api_url = Config.LAYER_HISTURL
     params = {'access_key': Config.LAYER_KEY, 'date': yesterday}
     forex_rates = get_forexrate(api_url, params)
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     record2file(Config.DAILY_CNY_FILE, period_cny.values[0])
     record2file(Config.DAILY_HKD_FILE, period_hkd.values[0])
 
-    day = pd.Timestamp(datetime.date.today())
+    day = pd.Timestamp(date.today())
     if day.is_month_end:
         record2file(Config.MONTHLY_CNY_FILE, period_cny.values[0])
         record2file(Config.MONTHLY_HKD_FILE, period_hkd.values[0])
