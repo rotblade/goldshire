@@ -2,6 +2,12 @@
 {% extends "base.html" %}
 
 {% block container %}
+
+<script type=text/javascript>
+  var stockHeaders = {{ headers|tojson }};
+  var stocks = {{ stocks|tojson }}
+</script>
+
 <div class="container" id="app">
 
   <div class="row">
@@ -10,104 +16,92 @@
         <thead>
           <tr>
             <th>A股市场</th>
-            <td>{{ headers[1] }}</td>
-            <td>{{ headers[2] }}</td>
-            <td>{{ headers[3] }}</td>
-            <td>{{ headers[4] }}(CNY)</td>
-            <td>{{ headers[8] }}</td>
-            <td>{{ headers[9] }}</td>
+            <th v-for="h in dataHeaders.slice(1,5)" v-text="h"></th>
           </tr>
         </thead>
         <tbody>
-          {% for symbol, row in stocks['cny'].items() %}
-          {% if row['Qty']>0 %}
-          <tr>
-            <th><a href="{{ url_for('get_stock', symbol=symbol) }}">{{ symbol }}</a></th>
-            <td>{{ row['Name'] }}</td>
-            <td>{{ row['Qty'] }}</td>
-            <td>{{ row['Last'] }}</td>
-            <td>{{ row['Market'] }}</td>
-            <td>{{ row['Earning'] }}</td>
-            <td>{{ "{:.1f}%".format(row['Return']*100) }}</td>
+          <tr v-for="(v, k) in cnyData" v-if="v['Qty']>0">
+            <td><a href="#" @click.prevent="getStock(k)" v-text="k"></a></td>
+            <td v-text="v['Name']"></td>
+            <td v-text="v['Qty']"></td>
+            <td v-text="v['Last']"></td>
+            <td v-text="v['Market']"></td>
           </tr>
-          {% endif %}
-          {% endfor %}
         </tbody>
       </table>
       <table class="table table-sm">
         <thead>
           <tr>
             <th>港股市场</th>
-            <td>{{ headers[1] }}</td>
-            <td>{{ headers[2] }}</td>
-            <td>{{ headers[3] }}</td>
-            <td>{{ headers[4] }}(HKD)</td>
-            <td>{{ headers[8] }}</td>
-            <td>{{ headers[9] }}</td>
+            <th v-for="h in dataHeaders.slice(1,5)" v-text="h"></th>
           </tr>
         </thead>
         <tbody>
-          {% for symbol, row in stocks['hkd'].items() %}
-          {% if row['Qty']>0 %}
-          <tr>
-            <th><a href="{{ url_for('get_stock', symbol=symbol) }}">{{ symbol }}</a></th>
-            <td>{{ row['Name'] }}</td>
-            <td>{{ row['Qty'] }}</td>
-            <td>{{ row['Last'] }}</td>
-            <td>{{ row['Market'] }}</td>
-            <td>{{ row['Earning'] }}</td>
-            <td>{{ "{:.1f}%".format(row['Return']*100) }}</td>
+          <tr v-for="(v, k) in hkdData" v-if="v['Qty']>0">
+            <td><a href="#" @click="getStock(k)" v-text="k"></a></td>
+            <td v-text="v['Name']"></td>
+            <td v-text="v['Qty']"></td>
+            <td v-text="v['Last']"></td>
+            <td v-text="v['Market']"></td>
           </tr>
-          {% endif %}
-          {% endfor %}
         </tbody>
       </table>
       <table class="table table-sm">
         <thead>
           <tr>
             <th>美股市场</th>
-            <td>{{ headers[1] }}</td>
-            <td>{{ headers[2] }}</td>
-            <td>{{ headers[3] }}</td>
-            <td>{{ headers[4] }}(HKD)</td>
-            <td>{{ headers[8] }}</td>
-            <td>{{ headers[9] }}</td>
+            <th v-for="h in dataHeaders.slice(1,5)" v-text="h"></th>
           </tr>
         </thead>
         <tbody>
-          {% for symbol, row in stocks['usd'].items() %}
-          {% if row['Qty']>0 %}
-          <tr>
-            <th><a href="{{ url_for('get_stock', symbol=symbol) }}">{{ symbol }}</a></th>
-            <td>{{ row['Name'] }}</td>
-            <td>{{ row['Qty'] }}</td>
-            <td>{{ row['Last'] }}</td>
-            <td>{{ row['Market'] }}</td>
-            <td>{{ row['Earning'] }}</td>
-            <td>{{ "{:.1f}%".format(row['Return']*100) }}</td>
+          <tr v-for="(v, k) in usdData" v-if="v['Qty']>0">
+            <td><a href="#" @click="getStock(k)" v-text="k"></a></td>
+            <td v-text="v['Name']"></td>
+            <td v-text="v['Qty']"></td>
+            <td v-text="v['Last']"></td>
+            <td v-text="v['Market']"></td>
           </tr>
-          {% endif %}
-          {% endfor %}
         </tbody>
       </table>
     </div>
     <div class="col-sm-4">
       <div class="input-group input-group-sm">
-        <select class="custom-select" id="market">
-          <option selected>市场...</option>
-          <option value="1">A股市场</option>
-          <option value="2">港股市场</option>
-          <option value="3">美股市场</option>
+        <select class="custom-select" v-model="market">
+          <option disabled value="">股票市场...</option>
+          <option value="A股市场">A股市场</option>
+          <option value="港股市场">港股市场</option>
+          <option value="美股市场">美股市场</option>
         </select>
-        <select class="custom-select" id="symbol">
-          <option selected>股票...</option>
-          {% for symbol, row in stocks['cny'].items() %}
-            <option value="{{ symbol }}">{{ row['Name'] }}</option>
-          {% endfor %}
+        <select class="custom-select" v-model="stock">
+          <option v-for="(v, k) in stockList" :value="k" v-text="v"></option>
         </select>
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="button">查询</button>
-        </div>
+      </div>
+      <p>
+      <div>
+        <dl class="row" v-if="stockData.keys().lenght>0">
+          <dt class="col-sm-4">股票名称:</dt>
+          <dd class="col-sm-8" v-text="stockData['Name']"></dd>
+          <dt class="col-sm-4">当前持仓:</dt>
+          <dd class="col-sm-8" v-text="stockData['Qty']"></dd>
+          <dt class="col-sm-4">最后价格:</dt>
+          <dd class="col-sm-8" v-text="stockData['Last']"></dd>
+          <dt class="col-sm-4">当前市值:</dt>
+          <dd class="col-sm-8" v-text="stockData['Market']"></dd>
+          <dt class="col-sm-4">已实现盈亏:</dt>
+          <dd class="col-sm-8" v-text="stockData['R_PnL']"></dd>
+          <dt class="col-sm-4">未实现盈亏:</dt>
+          <dd class="col-sm-8" v-text="stockData['UR_PnL']"></dd>
+          <dt class="col-sm-4">累计分红:</dt>
+          <dd class="col-sm-8" v-text="stockData['Dividend']"></dd>
+          <dt class="col-sm-4">累计佣金:</dt>
+          <dd class="col-sm-8" v-text="stockData['Commission']"></dd>
+          <dt class="col-sm-4">累计税金:</dt>
+          <dd class="col-sm-8" v-text="stockData['Tax']"></dd>
+          <dt class="col-sm-4">总盈亏:</dt>
+          <dd class="col-sm-8" v-text="stockData['Earning']"></dd>
+          <dt class="col-sm-4">回报率:</dt>
+          <dd class="col-sm-8" v-if="!isNaN(parseFloat(stockData['Return']))" v-text="parseFloat(stockData['Return']*100).toFixed(1)+' %'"></dd>
+        </dl>
       </div>
     </div>
   </div>
@@ -119,6 +113,5 @@
     <div class="col-sm-4">
     </div>
   </div>
-
 </div> <!-- /container -->
 {% endblock %}
