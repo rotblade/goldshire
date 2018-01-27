@@ -12,4 +12,5 @@ Date,Transaction,Amount,Currency,ExchangeRate,Memo
 2017-12-19,Withdraw,-50000.0,CNY,1,女儿治病
 2017-12-28,Withdraw,-71500.0,CNY,1,年底分红
 2017-12-29,Deposit,295253.0,CNY,1,海外转回355000港币
+2018-01-11,Deposit,300000.0,CNY,1,交行薪金贷
 2018-01-15,Deposit,30000.0,CNY,1,分红款没用完

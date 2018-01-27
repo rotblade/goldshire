@@ -1,5 +1,5 @@
 import datetime
-from flask import jsonify, render_template
+from flask import jsonify, render_template, request
 from app import app, invests, HKD
 
 columns = [
@@ -31,6 +31,29 @@ headers = [
     '累计税金',
 ]
 
+
+tradeColumns = [
+    'Name',
+    'Date',
+    'Transaction',
+    'Qty',
+    'Price',
+    'Commission',
+    'Tax',
+    'Broker',
+]
+
+tradeHeaders = [
+    '股票名称',
+    '日期',
+    '交易方向',
+    '股数',
+    '交易价格',
+    '佣金',
+    '税费',
+    '交易商',
+]
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -49,17 +72,28 @@ def index():
 @app.route('/stocks/')
 def get_stocks():
     day = datetime.date.today()
-    df_cny = invests['cny'].portfolios[0].getStocks(day)[columns]
-    df_hkd = invests['hkd'].portfolios[0].getStocks(day)[columns]
-    df_usd = invests['hkd'].portfolios[1].getStocks(day)[columns]
+    market = request.args.get('market', '')
+    symbol = request.args.get('symbol', '')
+    if len(symbol) == 0:
+        stocks={}
+        stock_cny = invests['cny'].portfolios[0].getStocks(day)[columns]
+        stock_hkd = invests['hkd'].portfolios[0].getStocks(day)[columns]
+        stock_usd = invests['hkd'].portfolios[1].getStocks(day)[columns]
+        stocks['cny'] = stock_cny.to_dict(orient='index')
+        stocks['hkd'] = stock_hkd.to_dict(orient='index')
+        stocks['usd'] = stock_usd.to_dict(orient='index')
 
-    stocks={}
-    stocks['cny'] = df_cny.to_dict(orient='index')
-    stocks['hkd'] = df_hkd.to_dict(orient='index')
-    stocks['usd'] = df_usd.to_dict(orient='index')
+        return render_template('stocks.html', headers=headers,stocks=stocks)
+    else:
+        if market == 'cny':
+            trades = invests['cny'].portfolios[0].getTrades(symbol)
+        elif market == 'hkd':
+            trades = invests['hkd'].portfolios[0].getTrades(symbol)
+        else:
+            trades = invests['hkd'].portfolios[1].getTrades(symbol)
 
-    # return jsonify([headers, stocks])
-    return render_template('stocks.html', headers=headers, stocks=stocks)
+        tradeData = trades[tradeColumns].to_dict(orient='records')
+        return jsonify([tradeHeaders, tradeData])
 
 
 @app.route('/stocks/<symbol>/')

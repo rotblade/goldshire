@@ -4,6 +4,7 @@
 {% block container %}
 
 <script type=text/javascript>
+  var stocks_url = {{ url_for('get_stocks')|tojson }}
   var stockHeaders = {{ headers|tojson }};
   var stocks = {{ stocks|tojson }}
 </script>
@@ -12,7 +13,7 @@
 
   <div class="row">
     <div class="col-sm-8">
-      <table class="table table-sm">
+      <table class="table table-sm" v-if="stockHolding['cny']>0">
         <thead>
           <tr>
             <th>A股市场</th>
@@ -21,15 +22,15 @@
         </thead>
         <tbody>
           <tr v-for="(v, k) in cnyData" v-if="v['Qty']>0">
-            <td><a href="#" @click.prevent="getStock(k)" v-text="k"></a></td>
+            <td><a href="#" @click.prevent="getStock(k, 'cny')" v-text="k"></a></td>
             <td v-text="v['Name']"></td>
             <td v-text="v['Qty']"></td>
-            <td v-text="v['Last']"></td>
-            <td v-text="v['Market']"></td>
+            <td v-text="parseFloat(v['Last']).toFixed(3)"></td>
+            <td v-text="parseFloat(v['Market']).toFixed(1)"></td>
           </tr>
         </tbody>
       </table>
-      <table class="table table-sm">
+      <table class="table table-sm" v-if="stockHolding['hkd']>0">
         <thead>
           <tr>
             <th>港股市场</th>
@@ -38,15 +39,15 @@
         </thead>
         <tbody>
           <tr v-for="(v, k) in hkdData" v-if="v['Qty']>0">
-            <td><a href="#" @click="getStock(k)" v-text="k"></a></td>
+            <td><a href="#" @click="getStock(k, 'hkd')" v-text="k"></a></td>
             <td v-text="v['Name']"></td>
             <td v-text="v['Qty']"></td>
-            <td v-text="v['Last']"></td>
-            <td v-text="v['Market']"></td>
+            <td v-text="parseFloat(v['Last']).toFixed(3)"></td>
+            <td v-text="parseFloat(v['Market']).toFixed(1)"></td>
           </tr>
         </tbody>
       </table>
-      <table class="table table-sm">
+      <table class="table table-sm" v-if="stockHolding['usd']>0">
         <thead>
           <tr>
             <th>美股市场</th>
@@ -55,60 +56,84 @@
         </thead>
         <tbody>
           <tr v-for="(v, k) in usdData" v-if="v['Qty']>0">
-            <td><a href="#" @click="getStock(k)" v-text="k"></a></td>
+            <td><a href="#" @click="getStock(k, 'usd')" v-text="k"></a></td>
             <td v-text="v['Name']"></td>
             <td v-text="v['Qty']"></td>
-            <td v-text="v['Last']"></td>
-            <td v-text="v['Market']"></td>
+            <td v-text="parseFloat(v['Last']).toFixed(3)"></td>
+            <td v-text="parseFloat(v['Market']).toFixed(1)"></td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="col-sm-4">
       <div class="input-group input-group-sm">
-        <select class="custom-select" v-model="market">
+        <select class="custom-select" v-model="market" @change="marketChanged">
           <option disabled value="">股票市场...</option>
-          <option value="A股市场">A股市场</option>
-          <option value="港股市场">港股市场</option>
-          <option value="美股市场">美股市场</option>
+          <option value="cny">A股市场</option>
+          <option value="hkd">港股市场</option>
+          <option value="usd">美股市场</option>
         </select>
-        <select class="custom-select" v-model="stock">
+        <select class="custom-select" v-model="stock" @change="stockChanged">
+          <option disabled value="">选择股票...</option>
           <option v-for="(v, k) in stockList" :value="k" v-text="v"></option>
         </select>
       </div>
       <p>
-      <div>
-        <dl class="row" v-if="stockData.keys().lenght>0">
+      <div v-if="stock.length>0">
+        <dl class="row">
           <dt class="col-sm-4">股票名称:</dt>
           <dd class="col-sm-8" v-text="stockData['Name']"></dd>
           <dt class="col-sm-4">当前持仓:</dt>
           <dd class="col-sm-8" v-text="stockData['Qty']"></dd>
           <dt class="col-sm-4">最后价格:</dt>
-          <dd class="col-sm-8" v-text="stockData['Last']"></dd>
+          <dd class="col-sm-8" v-text="parseFloat(stockData['Last']).toFixed(2)"></dd>
           <dt class="col-sm-4">当前市值:</dt>
-          <dd class="col-sm-8" v-text="stockData['Market']"></dd>
+          <dd class="col-sm-8" v-text="parseFloat(stockData['Market']).toFixed(1)"></dd>
           <dt class="col-sm-4">已实现盈亏:</dt>
-          <dd class="col-sm-8" v-text="stockData['R_PnL']"></dd>
+          <dd class="col-sm-8" v-text="parseFloat(stockData['R_PnL']).toFixed(1)"></dd>
           <dt class="col-sm-4">未实现盈亏:</dt>
-          <dd class="col-sm-8" v-text="stockData['UR_PnL']"></dd>
+          <dd class="col-sm-8" v-text="parseFloat(stockData['UR_PnL']).toFixed(1)"></dd>
           <dt class="col-sm-4">累计分红:</dt>
-          <dd class="col-sm-8" v-text="stockData['Dividend']"></dd>
+          <dd class="col-sm-8" v-text="parseFloat(stockData['Dividend']).toFixed(1)"></dd>
           <dt class="col-sm-4">累计佣金:</dt>
-          <dd class="col-sm-8" v-text="stockData['Commission']"></dd>
+          <dd class="col-sm-8" v-text="parseFloat(stockData['Commission']).toFixed(1)"></dd>
           <dt class="col-sm-4">累计税金:</dt>
-          <dd class="col-sm-8" v-text="stockData['Tax']"></dd>
+          <dd class="col-sm-8" v-text="parseFloat(stockData['Tax']).toFixed(1)"></dd>
           <dt class="col-sm-4">总盈亏:</dt>
-          <dd class="col-sm-8" v-text="stockData['Earning']"></dd>
+          <dd class="col-sm-8" v-text="parseFloat(stockData['Earning']).toFixed(1)"></dd>
           <dt class="col-sm-4">回报率:</dt>
           <dd class="col-sm-8" v-if="!isNaN(parseFloat(stockData['Return']))" v-text="parseFloat(stockData['Return']*100).toFixed(1)+' %'"></dd>
         </dl>
+        <p>
+        <div>
+          <a href="#" @click.prevent="getTrades()">详细交易记录</a>
+        </div>
       </div>
     </div>
   </div>
-
+  <p>
   <div class="row">
     <div class="col-sm-8">
-
+      <h5>交易记录</h5>
+      <table class="table table-sm" v-if="tradeHeaders.length>0">
+        <thead>
+          <tr>
+            <th v-for="h in tradeHeaders" v-text="h"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="trade in tradeData">
+            <td v-text="trade['Name']"></td>
+            <td v-text="trade['Date']"></td>
+            <td v-text="trade['Transaction']"></td>
+            <td v-text="trade['Qty']"></td>
+            <td v-text="parseFloat(trade['Price']).toFixed(3)"></td>
+            <td v-text="parseFloat(trade['Commission']).toFixed(2)"></td>
+            <td v-text="parseFloat(trade['Tax']).toFixed(2)"></td>
+            <td v-text="trade['Broker']"></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div class="col-sm-4">
     </div>

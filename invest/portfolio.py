@@ -197,3 +197,9 @@ class Portfolio:
         ]
 
         return df[columns].round(3)
+
+
+    def getTrades(self, symbol):
+        """
+        """
+        return self._trades.loc[[symbol]].round(3)
