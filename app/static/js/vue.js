@@ -101,12 +101,10 @@ var app = new Vue({
        // console.log(response.data)
        this.tradeHeaders = response.data[0]
        trades = response.data[1]
-       console.log(trades)
        for (i=0; i<trades.length; i++) {
            tdate = new Date(trades[i]['Date'])
            trades[i]['Date'] = tdate.toLocaleDateString()
        }
-       console.log(trades)
        this.tradeData = trades
       })
       .catch(e => {

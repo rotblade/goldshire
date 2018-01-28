@@ -92,6 +92,7 @@ class Investment:
         data['Value'] = data['Fund'] + data['Earning']
 
         data_df = pd.DataFrame(data=data, index=[end])
+        data_df.index = pd.to_datetime(data_df.index)
         return data_df.round(2)
 
 

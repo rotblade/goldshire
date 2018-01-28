@@ -10,6 +10,10 @@
 
     <!-- Custom CSS styles -->
     <link href="{{ url_for('static', filename='css/goldshire.css') }}" rel="stylesheet">
+
+    <!-- Plotly.js library -->
+    <script src="{{ url_for('static', filename='js/plotly-latest.min.js') }}"></script>
+  </head>
   </head>
 
   <body>
@@ -34,21 +38,14 @@
         </div>
       </nav>
 
+      <!-- Vue & Axios library
+      ================================================ -->
+      <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+      <!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
+      <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
       {% block container %}{% endblock %}
 
-    <!--</div>--><!--End of Vue app-->
-    <!-- Vue & Axios library
-    ================================================ -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
-    <!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
-    <!-- Custom JavaScript
-    ================================================ -->
-
-    <!-- Vue components and instance -->
-    <script type=text/javascript src="{{ url_for('static',
-      filename='js/vue.js') }}"></script>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->

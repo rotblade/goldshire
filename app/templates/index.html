@@ -1,6 +1,34 @@
 {% extends "base.html" %}
 
 {% block container %}
+<script type=text/javascript>
+  var freq = {{ freq|tojson }}
+  var freq_cny = {{ freq_cny|tojson }}
+  var freq_hkd = {{ freq_hkd|tojson }}
+  var freq_all = {{ freq_all|tojson }}
+
+  for (i=0; i<freq.length; i++) {
+     fdate = new Date(freq[i])
+     freq[i] = fdate.toLocaleDateString()
+  }
+
+  cnyData = []
+  for (i=0; i<freq_cny.length; i++) {
+     cnyData[i] = freq_cny[i]['Value']
+  }
+
+  hkdData = []
+  for (i=0; i<freq_hkd.length; i++) {
+     hkdData[i] = freq_hkd[i]['Value']
+  }
+
+  allData = []
+  for (i=0; i<freq_all.length; i++) {
+     allData[i] = freq_all[i]['Value']
+  }
+
+</script>
+
 <div class="container">
 
   <div class="row">
@@ -71,11 +99,69 @@
       </dl>
     </div>
   </div>
-
+  <p>
   <div class="row">
-    <div class="col-sm-8">
-      <grid-stocks :data="gridData" :columns="gridColumns">
-      </grid-stocks>
+    <div class="col-sm-10">
+      <div id="dataChart">
+      </div>
+      <script type=text/javascript>
+        dates = []
+        for (i=0; i<freq.length; i++) {
+          fdate = new Date(freq[i])
+          dates[i] = fdate.toLocaleDateString()
+        }
+
+        cnyData = []
+        for (i=0; i<freq_cny.length; i++) {
+          cnyData[i] = freq_cny[i]['Value']
+        }
+
+        hkdData = []
+        for (i=0; i<freq_hkd.length; i++) {
+          hkdData[i] = freq_hkd[i]['Value']
+        }
+
+        allData = []
+        for (i=0; i<freq_all.length; i++) {
+          allData[i] = freq_all[i]['Value']
+        }
+
+        var allTrace = {
+          x: dates,
+          y: allData,
+          mode: 'lines+markers',
+          name: '全部资产-CNY¥',
+          line: {
+            width: 3,
+          }
+          //type: 'scatter',
+        }
+
+        var cnyTrace = {
+          x: dates,
+          y: cnyData,
+          mode: 'lines+markers',
+          name: '国内资产-CNY¥',
+          line: {
+            width: 1,
+          }
+          //type: 'scatter',
+        }
+
+        var hkdTrace = {
+          x: dates,
+          y: hkdData,
+          mode: 'lines+markers',
+          name: '境外资产-HKD$',
+          line: {
+            width: 1,
+          }
+          //type: 'scatter',
+        }
+
+        var data = [allTrace, cnyTrace, hkdTrace]
+        Plotly.newPlot('dataChart', data)
+      </script>
     </div>
     <div class="col-sm-4">
     </div>

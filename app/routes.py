@@ -1,4 +1,5 @@
 import datetime
+import pandas as pd
 from flask import jsonify, render_template, request
 from app import app, invests, HKD
 
@@ -58,15 +59,29 @@ tradeHeaders = [
 @app.route('/index')
 def index():
     day = datetime.date.today()
-    df_cny = invests['cny'].getData(day)
-    df_hkd = invests['hkd'].getData(day)
-    df_all= df_cny + (df_hkd*HKD.get_rate2cny(day)).round(2)
-    rec_cny = df_cny.to_dict(orient='records')[0]
-    rec_hkd = df_hkd.to_dict(orient='records')[0]
-    rec_all = df_all.to_dict(orient='records')[0]
+    upto_cny = invests['cny'].getData(day)
+    upto_hkd = invests['hkd'].getData(day)
+    upto_all= upto_cny + (upto_hkd*HKD.get_rate2cny(day)).round(2)
+    rec_cny = upto_cny.to_dict(orient='records')[0]
+    rec_hkd = upto_hkd.to_dict(orient='records')[0]
+    rec_all = upto_all.to_dict(orient='records')[0]
+
+    freq_cny = pd.concat([invests['cny'].getPeriodData(), upto_cny])
+    freq_hkd = pd.concat([invests['hkd'].getPeriodData(), upto_hkd])
+    days = freq_cny.index
+    rates = []
+    for day in days:
+        rates.append(HKD.get_rate2cny(day))
+    yearly_rates = pd.DataFrame(rates, index=days, columns=['Rate'])
+    freq_hkd2cny = freq_hkd.mul(yearly_rates['Rate'], axis=0).round(2)
+    freq_all = pd.concat([freq_cny+freq_hkd2cny, upto_all])
+    idx_cny = freq_cny.to_dict(orient='records')
+    idx_hkd = freq_hkd.to_dict(orient='records')
+    idx_all = freq_all.to_dict(orient='records')
 
     return render_template('index.html', data_cny=rec_cny, data_hkd=rec_hkd,
-                            data_all=rec_all)
+                            data_all=rec_all, freq_cny=idx_cny,
+                            freq_hkd=idx_hkd, freq_all=idx_all, freq=list(days))
 
 
 @app.route('/stocks/')
