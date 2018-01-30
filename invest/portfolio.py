@@ -73,7 +73,8 @@ class Portfolio:
 
         trades = self._trades.loc[lambda df: df.Date <= until]
         grp_trade = trades.groupby([trades.index, trades['Transaction']])
-        stocks = trades[['Name']].drop_duplicates()
+        stocks = trades[~trades.index.duplicated()][['Name']]
+        # stocks = trades[['Name']].drop_duplicates()
         bs_sum = grp_trade['Qty', 'Cost'].sum().unstack(fill_value=0)
         if len(bs_sum.columns) < 4:
             bs_sum.insert(1, 'S_Qty', 0)
