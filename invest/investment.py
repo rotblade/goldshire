@@ -13,8 +13,8 @@ class Investment:
     Represent long term investment in one base currency.
     """
 
-    #_today = datetime.date.today()
-    #_baseday = datetime.date(_today.year, 1, 1) - DateOffset()
+#   _today = datetime.date.today()
+#   _baseday = datetime.date(_today.year, 1, 1) - DateOffset()
 
     def __init__(self, currency, recfile, pfls,
                  start=datetime.date(2015, 12, 31)):
